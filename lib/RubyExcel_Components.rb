@@ -63,7 +63,7 @@ class RubyExcel
       def initialize( sheet, input_data )
         @sheet = sheet
         ( input_data.kind_of?( Array ) &&  input_data.all? { |el| el.kind_of?( Array ) } ) or fail ArgumentError, 'Input must be Array of Arrays'
-        @data = input_data
+        @data = input_data.dup
         calc_dimensions
       end
       
@@ -157,10 +157,9 @@ class RubyExcel
 
       attr_reader :sheet, :idx, :data
 
-      def initialize( sheet, idx )
+      def initialize( sheet )
         @sheet = sheet
         @data = sheet.data
-        @idx = ( self.is_a? ( Row ) ? idx.to_i : idx )
       end
     
       def delete
@@ -210,7 +209,14 @@ class RubyExcel
     end
 
     class Row < Section
+    
+      attr_reader :idx
 
+      def initialize( sheet, idx )
+        @idx = idx.to_i
+        super( sheet )
+      end
+    
       private
 
       def each_address
@@ -220,6 +226,13 @@ class RubyExcel
     end
 
     class Column < Section
+    
+      attr_reader :idx
+      
+      def initialize( sheet, idx )
+        @idx = idx
+        super( sheet )
+      end
 
       private
 
@@ -273,6 +286,12 @@ class RubyExcel
       
       def inspect
         "#{ self.class }: #{ address }"
+      end
+    
+      include Enumerable
+      
+      def each
+        expand( address ).flatten.each { |addr| yield data[ addr ] }
       end
     
     end

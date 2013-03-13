@@ -132,16 +132,7 @@ class RubyExcel
         first_cell.is_a?( String ) ? first_cell : first_cell.address
       end ) )
     end
-    
-    def range=( first_cell, last_cell=nil, val )
-      Element.new( self, 
-      ( if last_cell
-        last_cell.is_a?( String ) ? ( first_cell + ':' + last_cell ) : "#{ first_cell.address }:#{ last_cell.address }"
-      else
-        first_cell.is_a?( String ) ? first_cell : first_cell.address
-      end ) )
-    end
-    
+
     def row( index )
       Row.new( self, index )
     end
