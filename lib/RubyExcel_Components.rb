@@ -104,7 +104,6 @@ module RubyExcel
     def dup
       Data.new( sheet.dup, @data.dup )
     end
-    alias clone dup
     
     def empty?
       no_headers.empty?

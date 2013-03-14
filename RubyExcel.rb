@@ -49,6 +49,7 @@ module RubyExcel
     def dup
       wb = Workbook.new
       self.each {|s| wb.add s.dup }
+      wb.each { |s| s.workbook = wb }
       wb
     end
     
@@ -116,7 +117,9 @@ module RubyExcel
     end
     
     def dup
-      Sheet.new( name, workbook ).load( data.dup, header_rows, header_cols )
+      s = Sheet.new( name, workbook )
+      s.load( data.dup , header_rows, header_cols ) unless data.nil?
+      s
     end
     
     def inspect
@@ -152,7 +155,7 @@ module RubyExcel
     end
     
     def to_s
-      data.map { |ar| ar.join "\t" }.join $/
+      data.nil? ? '' : data.map { |ar| ar.join "\t" }.join( $/ )
     end
     
   end

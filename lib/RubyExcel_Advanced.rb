@@ -1,34 +1,5 @@
 module RubyExcel
 
-=begin
-Handy stuff to add:
-Some way to support += and -=  and << with each class?
-Get specific columns from an array (or arg list) of headers.
-get the row number from a header (or other address type?) and a lookup value: =MATCH()
-get the address of a value: =FIND()
-filter the data with a column header and a block. Add a reverse-logic alternative for this?
-unique the rows by a header
-add upcase and strip options for the data
-add tools to handle date conversion
-add the ability to summarise a column
-add a sumif and a countif
-add something to the excel dump which takes a range and puts outer borders on it, plus optional inner borders.
-add the ability to loop across a column or row while appending items. Maybe by referencing a section outside the existing range?
-
-add the ability to import (recursively?) a nested hash into something like this:
-
-{ Type1: { SubType1: 1, SubType2: 2, SubType3: 3 }, Type2: { SubType1: 4, SubType2: 5, SubType3: 6 } }
-
-Type1 SubType1 1
-      SubType2 2
-      SubType3 3
-Type2
-      SubType1 4
-      SubType2 5
-      SubType3 6
-      
-=end
-
   def self.sample_data
     a=[];8.times{|t|b=[];c='A';5.times{b<<"#{c}#{t+1}";c.next!};a<<b};a
   end
