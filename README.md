@@ -56,8 +56,6 @@ rng.value = rng.map { |cell| cell + 'a' }
 ```ruby
 RubyExcel::Workbook.new.load( RubyExcel.sample_data ).workbook.to_excel
 	
-```
-
 ####Todo List:
 
 Handy stuff to add:
@@ -79,21 +77,9 @@ add the ability to import (recursively?) a nested hash into something like this:
 { Type1: { SubType1: 1, SubType2: 2, SubType3: 3 }, Type2: { SubType1: 4, SubType2: 5, SubType3: 6 } }
 <table>
 <tr>
-<td>Type1<\td><td>SubType1<\td><td>1<\td>
-<\tr>
-<tr>
-<td><\td><td>SubType2<td>2<\td>
-<\tr>
-<tr>
-<td><\td><td>SubType3<td>3<\td>
-<\tr>
-<tr>
-<td>Type2<\td><td>SubType1<td>4<\td>
-<\tr>
-<tr>
-<td><\td><td>SubType2<td>5<\td>
-<\tr>
-<tr>
-<td><\td><td>SubType3<td>6<\td>
-<\tr>
-<\table>
+<td>Type1<td>SubType1<td>1
+<tr><td><td>SubType2<td>2
+<tr><td><td>SubType3<td>3
+<tr><td>Type2<td>SubType1<td>4
+<tr><td><td>SubType2<td>5
+<tr><td><td>SubType3<td>6
