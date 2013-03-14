@@ -8,82 +8,83 @@ class Regexp
   end
 end
 
-class RubyExcel
+module RubyExcel
 
-  def initialize
-    @sheets = []
-  end
-  
-  def add( ref=nil )
-    case ref
-    when nil
-      s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
-    when Sheet
-      s = ref
-    when String
-      s = Sheet.new( ref, self )
-    else
-      fail TypeError, "Unsupported Type: #{ ref.class }"
+  class Workbook
+
+    def initialize
+      @sheets = []
     end
-    @sheets << s; s
-  end
-  alias add_sheet add
-  
-  def delete( ref )
-    case ref
-    when Fixnum
-      @sheets.delete_at( ref + 1 )
-    when String
-      @sheets.reject { |s| s.name == ref }
-    when Regex
-      @sheets.reject { |s| s.name =~ ref }
-    else
-      fail ArgumentError, "Unrecognised Argument Type: #{ ref.class }"
+    
+    def add( ref=nil )
+      case ref
+      when nil
+        s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
+      when Sheet
+        s = ref
+      when String
+        s = Sheet.new( ref, self )
+      else
+        fail TypeError, "Unsupported Type: #{ ref.class }"
+      end
+      @sheets << s; s
     end
+    alias add_sheet add
+    
+    def delete( ref )
+      case ref
+      when Fixnum
+        @sheets.delete_at( ref - 1 )
+      when String
+        @sheets.reject! { |s| s.name == ref }
+      when Regexp
+        @sheets.reject! { |s| s.name =~ ref }
+      when Sheet
+        @sheets.reject! { |s| s == ref }
+      else
+        fail ArgumentError, "Unrecognised Argument Type: #{ ref.class }"
+      end
+    end
+    
+    def dup
+      wb = Workbook.new
+      self.each {|s| wb.add s.dup }
+      wb
+    end
+    
+    def empty?
+      @sheets.empty?
+    end
+    
+    def load( *args )
+      add.load( *args )
+    end
+    
+    def sheets( ref=nil )
+      return to_enum (:each) if ref.nil?
+      ref.is_a?( Fixnum ) ? @sheets[ ref - 1 ] : @sheets.find { |s| s.name =~ /^#{ ref }$/i }
+    end
+    
+    include Enumerable
+    
+    def each
+      return to_enum(:each) unless block_given?
+      @sheets.each { |s| yield s }
+    end
+    
+    include Excel_Tools
+    
   end
-  
-  def dup
-    r = RubyExcel.new
-    r.each {|s| r.add s.dup }
-    r
-  end
-  
-  def empty?
-    @sheets.empty?
-  end
-  
-  def load( *args )
-    add.load( *args )
-  end
-  
-  def sheets( ref=nil )
-    return to_enum (:each) if ref.nil?
-    ref.is_a?( Fixnum ) ? @sheets[ ref - 1 ] : @sheets.find { |s| s.name =~ /^#{ ref }$/i }
-  end
-  
-  def sheets=( ref, sheet )
-    delete ref
-    add sheet
-  end
-  
-  include Enumerable
-  
-  def each
-    return to_enum(:each) unless block_given?
-    @sheets.each { |s| yield s }
-  end
-  
-  include Excel_Tools
-  
+
   class Sheet
 
-    attr_reader :data, :ruby_excel
-    attr_accessor :name, :header_rows, :header_cols
+    attr_reader :data
+    attr_accessor :name, :header_rows, :header_cols, :workbook
     
     include Address
     
-    def initialize( name, ruby_excel )
-      @ruby_excel = ruby_excel
+    def initialize( name, workbook )
+      @workbook = workbook
       @name = name
     end
 
@@ -110,8 +111,12 @@ class RubyExcel
       ( start_column..end_column ).each { |idx| yield column( idx ) }
     end
     
+    def delete
+      workbook.delete self
+    end
+    
     def dup
-      Sheet.new( name, ruby_excel.dup ).load( data.dup, header_rows, header_cols )
+      Sheet.new( name, workbook ).load( data.dup, header_rows, header_cols )
     end
     
     def inspect
