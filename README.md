@@ -50,6 +50,12 @@ s2.load RubyExcel.sample_data.transpose
 rng = s2.range 'A1:B3'
 rng.value = rng.map { |cell| cell + 'a' }
 
+s3 = wb.add
+s3.load RubyExcel.sample_data
+s3.header_rows = 1
+s3.filter! 'B1', &/B[247]/
+puts s3
+
 ```
 
 ####Open and populate an Excel Workbook using win32ole
@@ -59,17 +65,11 @@ RubyExcel::Workbook.new.load( RubyExcel.sample_data ).workbook.to_excel
 
 ####Todo List:
 
-**Handy stuff to add:**
-
 - Some way to support "+=" and "-=" with each class?
-
-- Get specific columns from an array (or arg list) of headers.
 
 - get the row number from a header (or other address type?) and a lookup value: =MATCH()
 
 - get the address of a value: =FIND()
-
-- filter the data with a column header and a block. Add a reverse-logic alternative for this?
 
 - unique the rows by a header
 

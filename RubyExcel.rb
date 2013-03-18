@@ -87,6 +87,8 @@ module RubyExcel
     def initialize( name, workbook )
       @workbook = workbook
       @name = name
+      @header_rows, @header_cols = nil, nil
+      @data = nil
     end
 
     def[]( addr )
@@ -112,14 +114,42 @@ module RubyExcel
       ( start_column..end_column ).each { |idx| yield column( idx ) }
     end
     
+    def get_columns( *headers )
+      s = dup
+      s.data.get_columns!( *headers )
+      s
+    end
+    alias gc get_columns
+    
+    def get_columns!( *headers )
+      data.get_columns!( *headers )
+      self
+    end
+    alias gc! get_columns!
+    
     def delete
       workbook.delete self
     end
     
     def dup
       s = Sheet.new( name, workbook )
-      s.load( data.dup , header_rows, header_cols ) unless data.nil?
+      d = data
+      unless d.nil?
+        d = d.dup
+        s.load( d.all, header_rows, header_cols )
+        d.sheet = s
+      end
       s
+    end
+    
+    def insert_columns( *args )
+      data.insert_columns( *args )
+      self
+    end
+    
+    def insert_rows( *args )
+      data.insert_rows( *args )
+      self
     end
     
     def inspect
@@ -133,12 +163,7 @@ module RubyExcel
     end
     
     def range( first_cell, last_cell=nil )
-      Element.new( self, 
-      ( if last_cell
-        last_cell.is_a?( String ) ? ( first_cell + ':' + last_cell ) : "#{ first_cell.address }:#{ last_cell.address }"
-      else
-        first_cell.is_a?( String ) ? first_cell : first_cell.address
-      end ) )
+      Element.new( self, to_range_address( first_cell, last_cell ) )
     end
 
     def row( index )

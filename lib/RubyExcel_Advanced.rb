@@ -41,6 +41,11 @@ module RubyExcel
       end
     end
     
+    def compact!
+      data.compact!
+      self
+    end
+    
     def empty?
       data.empty?
     end
@@ -50,6 +55,11 @@ module RubyExcel
     end
     alias ch column_by_header
 
+    def filter!( ref, &block )
+      data.filter!( ref, &block )
+      self
+    end
+    
   end
   
   class Data
@@ -71,7 +81,33 @@ module RubyExcel
       end
       object
     end
+    
+    def delete_column( ref )
+      delete( Column.new( sheet, ref ) )
+    end
   
+    def delete_row( ref )
+      delete( Row.new( sheet, ref ) )
+    end
+    
+    def delete_range( ref )
+      delete( Element.new( sheet, ref ) )
+    end
+  
+    def filter!( header )
+      hrows = sheet.header_rows
+      idx = col_index( hrows > 0 ? colref_by_header( header ) : header )
+      @data = @data.select.with_index { |row, i| hrows > i || yield( row[ idx -1 ] ) }
+    end
+  
+    def get_columns!( *headers )
+      hrow = sheet.header_rows - 1
+      ensure_shape
+      @data = @data.transpose.select{ |col| headers.include?( col[hrow] ) }
+      ensure_shape
+      @data = @data.sort_by{ |col| headers.index( col[hrow] ) || col[hrow] }.transpose
+    end
+
   end
   
   class Section

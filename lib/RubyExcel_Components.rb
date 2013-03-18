@@ -47,6 +47,14 @@ module RubyExcel
       ( col_letter( address_to_col_index( address ) ) + col ) + ( row_id( address ) + row ).to_s
     end
     
+    def to_range_address( obj1, obj2 )
+      if obj2
+        obj2.is_a?( String ) ? ( obj1 + ':' + obj2 ) : "#{ obj1.address }:#{ obj2.address }"
+      else
+        obj1.is_a?( String ) ? obj1 : obj1.address
+      end
+    end
+    
     def row_id( address )
       address[/\d+/].to_i
     end
@@ -54,7 +62,8 @@ module RubyExcel
   end
 
   class Data
-    attr_reader :rows, :cols, :sheet
+    attr_reader :rows, :cols
+    attr_accessor :sheet
     
     include Address
     
@@ -78,7 +87,9 @@ module RubyExcel
     def colref_by_header( header )
       sheet.header_rows > 0 or fail NoMethodError, 'No header rows present'
       @data[ 0..sheet.header_rows-1 ].each do |r|
-        return col_letter( idx+1 ) if ( idx = r.index( header ) )
+        if ( idx = r.index( header ) )
+          return col_letter( idx+1 ) 
+        end
       end
       fail IndexError, "#{ header } is not a valid header"
     end
@@ -102,13 +113,23 @@ module RubyExcel
     end
 
     def dup
-      Data.new( sheet.dup, @data.dup )
+      Data.new( sheet, @data.dup )
     end
     
     def empty?
       no_headers.empty?
     end
-
+    
+    def insert_columns( before, number )
+      a = Array.new( number, nil )
+      before = col_index( before ) - 1
+      @data.map! { |row|  row.insert( before, *a ) }
+    end
+    
+    def insert_rows( before, number )
+      @data = @data.insert( ( col_index( before ) - 1 ), *Array.new( number, [nil] ) )
+    end
+    
     def no_headers
       if sheet.header_cols.zero?
         @data[ sheet.header_rows..-1 ].dup
@@ -125,6 +146,7 @@ module RubyExcel
     
     def write( addr, val )
       row_idx, col_idx = address_to_indices( addr )
+      ( row_idx - rows ).times { @data << [] }
       @data[ row_idx-1 ][ col_idx-1 ] = val
       calc_dimensions
     end
@@ -143,7 +165,9 @@ module RubyExcel
     end
     
     def ensure_shape
+      calc_dimensions
       @data.map! { |ar| ar.length == cols ? ar : ar + Array.new( cols - ar.length, nil) }
+      @data
     end
     
   end
@@ -186,6 +210,10 @@ module RubyExcel
     def each
       return to_enum(:each) unless block_given?
       each_address { |addr| yield data[ addr ] }
+    end
+    
+    def map!
+      each_address { |addr| data[addr] = ( yield data[addr] ) }
     end
     
     def empty?
@@ -289,6 +317,10 @@ module RubyExcel
     
     def each
       expand( address ).flatten.each { |addr| yield data[ addr ] }
+    end
+  
+    def map!
+      expand( address ).flatten.each { |addr| data[ addr ] = yield data[ addr ] }
     end
   
   end
