@@ -98,6 +98,8 @@ module RubyExcel
       hrows = sheet.header_rows
       idx = col_index( hrows > 0 ? colref_by_header( header ) : header )
       @data = @data.select.with_index { |row, i| hrows > i || yield( row[ idx -1 ] ) }
+      calc_dimensions
+      self
     end
   
     def get_columns!( *headers )
@@ -106,15 +108,30 @@ module RubyExcel
       @data = @data.transpose.select{ |col| headers.include?( col[hrow] ) }
       ensure_shape
       @data = @data.sort_by{ |col| headers.index( col[hrow] ) || col[hrow] }.transpose
+      calc_dimensions
+      self
     end
 
   end
   
   class Section
+  
+    def <<( value )
+      if self.is_a? Row
+        lastone = ( col_index( idx ) == 1 ? data.cols + 1 : data.cols )
+      else
+        lastone = ( col_index( idx ) == 1 ? data.rows + 1 : data.rows )
+      end
+      data[ translate_address( lastone ) ] = value
+    end
 
   end
 
   class Row < Section
+  
+    def getref( header )
+      column_id( sheet.row(1).find &/#{header}/ )
+    end
 
   end
 

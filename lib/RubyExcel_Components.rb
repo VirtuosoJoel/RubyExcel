@@ -187,6 +187,14 @@ module RubyExcel
       data.delete( self )
     end
   
+    def empty?
+      all? { |val| val.to_s.empty? }
+    end
+  
+    def find
+      each.with_index { |val,i| return translate_address( i + 1 ) if yield val }; nil
+    end
+  
     def inspect
       "#{ self.class }: #{ idx }"
     end
@@ -213,13 +221,10 @@ module RubyExcel
     end
     
     def map!
+      return to_enum(:map!) unless block_given?
       each_address { |addr| data[addr] = ( yield data[addr] ) }
     end
-    
-    def empty?
-      all? { |val| val.to_s.empty? }
-    end
-    
+
     private
     
     def translate_address( addr )

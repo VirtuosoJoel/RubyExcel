@@ -27,7 +27,8 @@ module RubyExcel
       else
         fail TypeError, "Unsupported Type: #{ ref.class }"
       end
-      @sheets << s; s
+      @sheets << s
+      s
     end
     alias add_sheet add
     
@@ -177,6 +178,10 @@ module RubyExcel
     
     def to_a
       data.all
+    end
+    
+    def to_excel
+      workbook.to_excel
     end
     
     def to_s
