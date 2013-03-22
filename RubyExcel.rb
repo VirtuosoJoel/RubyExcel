@@ -16,12 +16,22 @@ module RubyExcel
       @sheets = []
     end
     
+    def <<( other )
+      case other
+      when RubyExcel
+        other.each { |s| @sheets << s }
+      when Sheet
+        @sheets << other
+      end
+    end
+    
     def add( ref=nil )
       case ref
       when nil
         s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
       when Sheet
         s = ref
+        s.workbook = self
       when String
         s = Sheet.new( ref, self )
       else
@@ -31,6 +41,11 @@ module RubyExcel
       s
     end
     alias add_sheet add
+    
+    def clear_all
+      @sheets = []
+      self
+    end
     
     def delete( ref )
       case ref
@@ -50,7 +65,6 @@ module RubyExcel
     def dup
       wb = Workbook.new
       self.each {|s| wb.add s.dup }
-      wb.each { |s| s.workbook = wb }
       wb
     end
     
@@ -67,6 +81,15 @@ module RubyExcel
       ref.is_a?( Fixnum ) ? @sheets[ ref - 1 ] : @sheets.find { |s| s.name =~ /^#{ ref }$/i }
     end
     
+    def sort_by!( &block )
+      if block_given?
+        @sheets = @sheets.sort_by(&block)
+      else
+        @sheets = @sheets.sort_by(&:name)
+      end
+    end
+    alias sort! sort_by!
+    
     include Enumerable
     
     def each
@@ -82,6 +105,7 @@ module RubyExcel
 
     attr_reader :data
     attr_accessor :name, :header_rows, :header_cols, :workbook
+    alias parent workbook
     
     include Address
     
@@ -89,7 +113,7 @@ module RubyExcel
       @workbook = workbook
       @name = name
       @header_rows, @header_cols = nil, nil
-      @data = nil
+      @data = Data.new( self, [[]] )
     end
 
     def[]( addr )
@@ -154,7 +178,7 @@ module RubyExcel
     end
     
     def inspect
-      "#{ self.class }: #{ name }"
+      "#{ self.class }:0x#{ '%x' % (object_id << 1) }: #{ name }"
     end
     
     def load( input_data, header_rows=1, header_cols=0 )
@@ -162,6 +186,19 @@ module RubyExcel
       @data = Data.new( self, input_data )
       self
     end
+    
+    def match( header, &block )
+      row_id( column_by_header( header ).find( &block ) )
+    end
+    
+    def maxrow
+      data.rows
+    end
+    
+    def maxcol
+      data.cols
+    end
+    alias maxcolumn maxcol
     
     def range( first_cell, last_cell=nil )
       Element.new( self, to_range_address( first_cell, last_cell ) )
@@ -181,7 +218,7 @@ module RubyExcel
     end
     
     def to_excel
-      workbook.to_excel
+      workbook.dup.clear_all.add( self.dup ).workbook.to_excel
     end
     
     def to_s

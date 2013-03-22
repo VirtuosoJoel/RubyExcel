@@ -33,6 +33,7 @@ module Excel_Tools
   end
   
   def to_excel
+    fail NoMethodError, 'Duplicate sheet name' if self.sheets.count != self.sheets.map(&:name).uniq.length
     wb = get_workbook
     wb.parent.DisplayAlerts = false
     first_time = true

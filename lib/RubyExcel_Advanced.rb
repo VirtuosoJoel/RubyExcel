@@ -3,14 +3,9 @@ module RubyExcel
   def self.sample_data
     a=[];8.times{|t|b=[];c='A';5.times{b<<"#{c}#{t+1}";c.next!};a<<b};a
   end
-
-  def <<( other )
-    case other
-    when RubyExcel
-      other.each { |s| @sheets << s }
-    when Sheet
-      @sheets << other
-    end
+  
+  def self.sample_sheet
+    Workbook.new.load RubyExcel.sample_data
   end
 
   class Sheet
@@ -51,7 +46,7 @@ module RubyExcel
     end
     
     def column_by_header( header )
-      Column.new( self, data.colrf_by_header( header ) )
+      Column.new( self, data.colref_by_header( header ) )
     end
     alias ch column_by_header
 
@@ -59,6 +54,22 @@ module RubyExcel
       data.filter!( ref, &block )
       self
     end
+    
+    def sumif( find_header, sum_header )
+      col1 = column_by_header( find_header )
+      col2 = column_by_header( sum_header )
+      total = 0
+      col1.each.with_index do |val,idx|
+        total += ( ( n = col2[ idx + 1 ] ).is_a?( String ) ? n.to_i : n ) if yield( val ) && idx >= header_rows
+      end
+      total
+    end
+    
+    def uniq!( header )
+      data.uniq!( header )
+      self
+    end
+    alias unique! uniq!
     
   end
   
@@ -79,7 +90,7 @@ module RubyExcel
       else
         fail NoMethodError, "#{ object.class } is not supported"
       end
-      object
+      self
     end
     
     def delete_column( ref )
@@ -111,6 +122,13 @@ module RubyExcel
       calc_dimensions
       self
     end
+    
+    def uniq!( header )
+      column = col_index( colref_by_header( header ) )
+      @data = @data.uniq { |row| row[ column - 1 ] }
+      self
+    end
+    alias unique! uniq!
 
   end
   

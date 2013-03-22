@@ -44,7 +44,7 @@ module RubyExcel
     end
     
     def offset(address, row, col)
-      ( col_letter( address_to_col_index( address ) ) + col ) + ( row_id( address ) + row ).to_s
+      ( col_letter( address_to_col_index( address ) + col ) ) + ( row_id( address ) + row ).to_s
     end
     
     def to_range_address( obj1, obj2 )
@@ -56,6 +56,7 @@ module RubyExcel
     end
     
     def row_id( address )
+      return nil unless address
       address[/\d+/].to_i
     end
     
@@ -64,6 +65,7 @@ module RubyExcel
   class Data
     attr_reader :rows, :cols
     attr_accessor :sheet
+    alias parent sheet
     
     include Address
     
@@ -120,13 +122,13 @@ module RubyExcel
       no_headers.empty?
     end
     
-    def insert_columns( before, number )
+    def insert_columns( before, number=1 )
       a = Array.new( number, nil )
       before = col_index( before ) - 1
       @data.map! { |row|  row.insert( before, *a ) }
     end
     
-    def insert_rows( before, number )
+    def insert_rows( before, number=1 )
       @data = @data.insert( ( col_index( before ) - 1 ), *Array.new( number, [nil] ) )
     end
     
@@ -177,6 +179,7 @@ module RubyExcel
     include Address
 
     attr_reader :sheet, :idx, :data
+    alias parent sheet
 
     def initialize( sheet )
       @sheet = sheet
@@ -196,7 +199,7 @@ module RubyExcel
     end
   
     def inspect
-      "#{ self.class }: #{ idx }"
+      "#{ self.class }:0x#{ '%x' % (object_id << 1) }: #{ idx }"
     end
   
     def read( id )
@@ -220,6 +223,11 @@ module RubyExcel
       each_address { |addr| yield data[ addr ] }
     end
     
+    def each_cell
+      return to_enum(:each_cell) unless block_given?
+      each_address { |addr| yield Element.new( sheet, addr ) }
+    end
+    
     def map!
       return to_enum(:map!) unless block_given?
       each_address { |addr| data[addr] = ( yield data[addr] ) }
@@ -232,7 +240,9 @@ module RubyExcel
       when Row
         col_letter( addr ) + idx.to_s
       when Column
-        idx + addr.to_s
+        addr = addr.to_s unless addr.is_a?( String )
+        fail ArgumentError, "Invalid address : #{ addr }" if addr =~ /[^\d]/
+        idx + addr
       end
     end
 
@@ -275,6 +285,7 @@ module RubyExcel
   class Element
 
     attr_reader :sheet, :address, :data
+    alias parent sheet
 
     def initialize( sheet, addr )
       fail ArgumentError, "Invalid range: #{ addr }" unless addr =~ /\A[A-Z]+\d+:[A-Z]+\d+\z|\A[A-Z]+\d+\z/
@@ -315,13 +326,17 @@ module RubyExcel
     end
     
     def inspect
-      "#{ self.class }: #{ address }"
+      "#{ self.class }:0x#{ '%x' % (object_id << 1) }: #{ address }"
     end
   
     include Enumerable
     
     def each
       expand( address ).flatten.each { |addr| yield data[ addr ] }
+    end
+    
+    def each_cell
+      expand( address ).flatten.each { |addr| yield Element.new( sheet, addr ) }
     end
   
     def map!

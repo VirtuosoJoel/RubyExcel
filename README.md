@@ -16,6 +16,9 @@ wb = RubyExcel::Workbook.new
 s = wb.load RubyExcel.sample_data
 puts s
 
+#Or:
+s = RubyExcel.sample_sheet
+
 ```
 
 ####Reference a cell's value:
@@ -40,38 +43,28 @@ s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
 
 ```
+
 ####Advanced Interactions:
 ```ruby
 
-puts s.column('D').map &:to_s
+s = RubyExcel.sample_sheet
 
-s2 = wb.add 'NewSheet'
-s2.load RubyExcel.sample_data.transpose
-rng = s2.range 'A1:B3'
-rng.value = rng.map { |cell| cell + 'a' }
+s.column('D').each_cell { |c| puts "#{ c.address }: #{ c.value }" }
 
-s3 = wb.add
-s3.load RubyExcel.sample_data
-s3.header_rows = 1
-s3.filter! 'B1', &/B[247]/
-puts s3
+s.range( 'A1:B3' ).map! { |val| val + 'a' }
+
+s.filter! 'C1', &/C[247]/
 
 ```
 
 ####Open and populate an Excel Workbook using win32ole
 ```ruby
-RubyExcel::Workbook.new.load( RubyExcel.sample_data ).workbook.to_excel
+RubyExcel.sample_sheet.parent.to_excel
 ```
 
 ####Todo List:
 
-- Some way to support "+=" and "-=" with each class?
-
-- get the row number from a header (or other address type?) and a lookup value: =MATCH()
-
-- get the address of a value: =FIND()
-
-- unique the rows by a header
+- add the option to unique the rows by a header
 
 - add upcase and strip options for the data
 
@@ -79,11 +72,7 @@ RubyExcel::Workbook.new.load( RubyExcel.sample_data ).workbook.to_excel
 
 - add the ability to summarise a column
 
-- add a sumif and a countif
-
-- add something to the excel dump which takes a range and puts outer borders on it, plus optional inner borders.
-
-- add the ability to loop across a column or row while appending items. Maybe by referencing a section outside the existing range?
+- add something to the excel tools which takes an excel sheet and a range, and puts outer borders on it, plus optional inner borders.
 
 - add the ability to import (recursively?) a nested hash into something like this:
 
