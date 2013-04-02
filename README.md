@@ -9,16 +9,13 @@ Example
 -------
 ####Loading the class with example data:
 ```ruby
-
 require 'RubyExcel'
+
 wb = RubyExcel::Workbook.new
 
 s = wb.load RubyExcel.sample_data
-puts s
-
 #Or:
 s = RubyExcel.sample_sheet
-
 ```
 
 ####Reference a cell's value:
@@ -30,7 +27,6 @@ s.row(7)['A']
 s.row(7)[1]
 s.column('A')[7]
 s.column('A')['7']
-
 ```
 ####Reference a group of cells:
 
@@ -41,12 +37,10 @@ s.range( s.cell( 1, 1 ), s.cell( 3, 2 ) ) #=> Element
 s.row( 1 ) #=> Row
 s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
-
 ```
 
 ####Advanced Interactions:
 ```ruby
-
 s = RubyExcel.sample_sheet
 
 s.column('D').each_cell { |c| puts "#{ c.address }: #{ c.value }" }
@@ -54,7 +48,6 @@ s.column('D').each_cell { |c| puts "#{ c.address }: #{ c.value }" }
 s.range( 'A1:B3' ).map! { |val| val + 'a' }
 
 s.filter! 'C1', &/C[247]/
-
 ```
 
 ####Open and populate an Excel Workbook using win32ole
@@ -64,13 +57,7 @@ RubyExcel.sample_sheet.parent.to_excel
 
 ####Todo List:
 
-- add the option to unique the rows by a header
-
-- add upcase and strip options for the data
-
 - add tools to handle date conversion
-
-- add the ability to summarise a column
 
 - add something to the excel tools which takes an excel sheet and a range, and puts outer borders on it, plus optional inner borders.
 

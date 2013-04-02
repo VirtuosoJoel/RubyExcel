@@ -1,6 +1,5 @@
-require_relative 'lib/RubyExcel_Components.rb'
-require_relative 'lib/RubyExcel_Advanced.rb'
-require_relative 'lib/Excel_Tools.rb'
+require_relative 'rubyexcel/rubyexcel_components.rb'
+require_relative 'rubyexcel/excel_tools.rb'
 
 class Regexp
   def to_proc
@@ -18,8 +17,8 @@ module RubyExcel
     
     def <<( other )
       case other
-      when RubyExcel
-        other.each { |s| @sheets << s }
+      when Workbook
+        other.inject( @sheets, :<< )
       when Sheet
         @sheets << other
       end
@@ -124,6 +123,33 @@ module RubyExcel
       range( addr ).value = val
     end
 
+ 
+    def +( other )
+      dup << other
+    end
+    
+    def -( other )
+      case other
+      when Array
+        Workbook.new.load( data.all - other )
+      when Sheet
+        Workbook.new.load( data.all - other.data.no_headers )
+      else
+        fail ArgumentError, "Unsupported class: #{ other.class }"
+      end
+    end
+    
+    def <<( other )
+      case other
+      when Array
+        load( data.all + other, header_rows, header_cols )
+      when Sheet
+        load( data.all + other.data.no_headers, header_rows, header_cols )
+      else
+        fail ArgumentError, "Unsupported class: #{ other.class }"
+      end
+    end
+    
     def cell( row, col )
       Element.new( self, indices_to_address( row, col ) )
     end
@@ -133,24 +159,21 @@ module RubyExcel
       Column.new( self, col_letter( index ) )
     end
     
+    def column_by_header( header )
+      Column.new( self, data.colref_by_header( header ) )
+    end
+    alias ch column_by_header
+    
     def columns( start_column = 'A', end_column = data.cols )
       start_column, end_column = col_letter( start_column ), col_letter( end_column )
       return to_enum(:columns, start_column, end_column) unless block_given?
       ( start_column..end_column ).each { |idx| yield column( idx ) }
     end
     
-    def get_columns( *headers )
-      s = dup
-      s.data.get_columns!( *headers )
-      s
-    end
-    alias gc get_columns
-    
-    def get_columns!( *headers )
-      data.get_columns!( *headers )
+    def compact!
+      data.compact!
       self
     end
-    alias gc! get_columns!
     
     def delete
       workbook.delete self
@@ -166,6 +189,32 @@ module RubyExcel
       end
       s
     end
+    
+    def empty?
+      data.empty?
+    end
+    
+    def filter( ref, &block )
+      dup.filter!( ref, &block )
+    end
+
+    def filter!( ref, &block )
+      data.filter!( ref, &block )
+      self
+    end
+    
+    def get_columns( *headers )
+      s = dup
+      s.data.get_columns!( *headers )
+      s
+    end
+    alias gc get_columns
+    
+    def get_columns!( *headers )
+      data.get_columns!( *headers )
+      self
+    end
+    alias gc! get_columns!
     
     def insert_columns( *args )
       data.insert_columns( *args )
@@ -213,6 +262,16 @@ module RubyExcel
       ( start_row..end_row ).each { |idx| yield row( idx ) }
     end
     
+    def sumif( find_header, sum_header )
+      col1 = column_by_header( find_header )
+      col2 = column_by_header( sum_header )
+      total = 0
+      col1.each_cell do |ce|
+        total += col2[ ce.row ].to_i if yield( ce.value ) && ce.row >= header_rows
+      end
+      total
+    end
+    
     def to_a
       data.all
     end
@@ -224,6 +283,12 @@ module RubyExcel
     def to_s
       data.nil? ? '' : data.map { |ar| ar.join "\t" }.join( $/ )
     end
+    
+    def uniq!( header )
+      data.uniq!( header )
+      self
+    end
+    alias unique! uniq!
     
   end
   
