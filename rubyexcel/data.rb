@@ -1,5 +1,7 @@
 module RubyExcel
 
+require_relative 'address.rb'
+
   class Data
     attr_reader :rows, :cols
     attr_accessor :sheet
