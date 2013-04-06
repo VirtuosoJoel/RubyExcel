@@ -30,7 +30,8 @@ module RubyExcel
     
     def expand( address )
       return [[address]] unless address.include? ':'
-      start_col, end_col, start_row, end_row = [ address[/^[A-Z]+/], address[/(?<=:)[A-Z]+/] ].sort + [ address.match(/(\d+):/).captures.first, address[/\d+$/] ].sort
+      address.upcase.match( /([A-Z]+)(\d+):([A-Z]+)(\d+)/i )
+      start_col, end_col, start_row, end_row = [ $1, $3 ].sort + [ $2.to_i, $4.to_i ].sort
       (start_row..end_row).map { |r| (start_col..end_col).map { |c| "#{ c }#{ r }" } }
     end
     

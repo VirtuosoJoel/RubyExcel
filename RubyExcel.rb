@@ -59,6 +59,7 @@ module RubyExcel
       else
         fail ArgumentError, "Unrecognised Argument Type: #{ ref.class }"
       end
+      self
     end
     
     def dup
@@ -80,14 +81,13 @@ module RubyExcel
       ref.is_a?( Fixnum ) ? @sheets[ ref - 1 ] : @sheets.find { |s| s.name =~ /^#{ ref }$/i }
     end
     
-    def sort_by!( &block )
-      if block_given?
-        @sheets = @sheets.sort_by(&block)
-      else
-        @sheets = @sheets.sort_by(&:name)
-      end
+    def sort!
+      @sheets = @sheets.sort(&block)
     end
-    alias sort! sort_by!
+    
+    def sort_by!( &block )
+      @sheets = @sheets.sort_by(&block)
+    end
     
     include Enumerable
     
@@ -103,15 +103,16 @@ module RubyExcel
   class Sheet
 
     attr_reader :data
-    attr_accessor :name, :header_rows, :header_cols, :workbook
-    alias parent workbook
+    attr_accessor :name, :header_rows, :workbook
+    alias parent workbook; alias parent= workbook=
+    alias headers header_rows; alias headers= header_rows=
     
     include Address
     
     def initialize( name, workbook )
       @workbook = workbook
       @name = name
-      @header_rows, @header_cols = nil, nil
+      @header_rows = nil
       @data = Data.new( self, [[]] )
     end
 
@@ -142,9 +143,9 @@ module RubyExcel
     def <<( other )
       case other
       when Array
-        load( data.all + other, header_rows, header_cols )
+        load( data.all + other, header_rows )
       when Sheet
-        load( data.all + other.data.no_headers, header_rows, header_cols )
+        load( data.all + other.data.no_headers, header_rows )
       else
         fail ArgumentError, "Unsupported class: #{ other.class }"
       end
@@ -168,6 +169,7 @@ module RubyExcel
       start_column, end_column = col_letter( start_column ), col_letter( end_column )
       return to_enum(:columns, start_column, end_column) unless block_given?
       ( start_column..end_column ).each { |idx| yield column( idx ) }
+      self
     end
     
     def compact!
@@ -179,12 +181,22 @@ module RubyExcel
       workbook.delete self
     end
     
+    def delete_rows_if
+      rows.reverse_each { |r| r.delete if yield r }
+      self
+    end
+    
+    def delete_columns_if
+      columns.reverse_each { |c| c.delete if yield c }
+      self
+    end
+    
     def dup
       s = Sheet.new( name, workbook )
       d = data
       unless d.nil?
         d = d.dup
-        s.load( d.all, header_rows, header_cols )
+        s.load( d.all, header_rows )
         d.sheet = s
       end
       s
@@ -204,9 +216,7 @@ module RubyExcel
     end
     
     def get_columns( *headers )
-      s = dup
-      s.data.get_columns!( *headers )
-      s
+      dup.data.get_columns!( *headers )
     end
     alias gc get_columns
     
@@ -230,8 +240,8 @@ module RubyExcel
       "#{ self.class }:0x#{ '%x' % (object_id << 1) }: #{ name }"
     end
     
-    def load( input_data, header_rows=1, header_cols=0 )
-      @header_rows, @header_cols = header_rows, header_cols
+    def load( input_data, header_rows=1 )
+      @header_rows = header_rows
       @data = Data.new( self, input_data )
       self
     end
@@ -252,6 +262,14 @@ module RubyExcel
     def range( first_cell, last_cell=nil )
       Element.new( self, to_range_address( first_cell, last_cell ) )
     end
+    
+    def reverse_columns!
+      data.reverse_columns!
+    end
+    
+    def reverse_rows!
+      data.reverse_rows!
+    end
 
     def row( index )
       Row.new( self, index )
@@ -260,6 +278,17 @@ module RubyExcel
     def rows( start_row = 1, end_row = data.rows )
       return to_enum(:rows, start_row, end_row) unless block_given?
       ( start_row..end_row ).each { |idx| yield row( idx ) }
+      self
+    end
+    
+    def sort!( &block )
+      data.sort! &block
+      self
+    end
+    
+    def sort_by!( &block )
+      data.sort_by! &block
+      self
     end
     
     def sumif( find_header, sum_header )
@@ -267,7 +296,7 @@ module RubyExcel
       col2 = column_by_header( sum_header )
       total = 0
       col1.each_cell do |ce|
-        total += col2[ ce.row ].to_i if yield( ce.value ) && ce.row >= header_rows
+        total += col2[ ce.row ] if yield( ce.value ) && ce.row > header_rows
       end
       total
     end

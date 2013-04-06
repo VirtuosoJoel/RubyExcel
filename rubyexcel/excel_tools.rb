@@ -17,8 +17,7 @@ module Excel_Tools
   end
   
   def dump_to_sheet( data, sheet=nil )
-    fail ArgumentError, "Invalid data type: #{ data.class }" unless data.is_a?( Array ) || data.is_a?( RubyExcel )
-    data = data.to_a if data.is_a? RubyExcel
+    data.is_a?( Array ) or fail ArgumentError, "Invalid data type: #{ data.class }"
     sheet ||= get_workbook.sheets(1)
     sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data[0].length ) ).value = data
     sheet

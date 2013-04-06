@@ -45,13 +45,11 @@ require_relative 'address.rb'
       ensure_shape
       @data = @data.transpose.delete_if { |ar| ar.all? { |el| el.to_s.empty? } || ar.empty? }.transpose
       calc_dimensions
-      @data
     end
     
     def compact_rows!
       @data.delete_if { |ar| ar.all? { |el| el.to_s.empty? } || ar.empty? }
       calc_dimensions
-      @data
     end
     
     def delete( object )
@@ -69,19 +67,22 @@ require_relative 'address.rb'
       else
         fail NoMethodError, "#{ object.class } is not supported"
       end
-      self
+      calc_dimensions
     end
     
     def delete_column( ref )
       delete( Column.new( sheet, ref ) )
+      calc_dimensions
     end
   
     def delete_row( ref )
       delete( Row.new( sheet, ref ) )
+      calc_dimensions
     end
     
     def delete_range( ref )
       delete( Element.new( sheet, ref ) )
+      calc_dimensions
     end
     
     def dup
@@ -97,35 +98,33 @@ require_relative 'address.rb'
       idx = col_index( hrows > 0 ? colref_by_header( header ) : header )
       @data = @data.select.with_index { |row, i| hrows > i || yield( row[ idx -1 ] ) }
       calc_dimensions
-      self
     end
   
     def get_columns!( *headers )
       hrow = sheet.header_rows - 1
       ensure_shape
       @data = @data.transpose.select{ |col| headers.include?( col[hrow] ) }
+      p @data
       ensure_shape
       @data = @data.sort_by{ |col| headers.index( col[hrow] ) || col[hrow] }.transpose
       calc_dimensions
-      self
+      sheet
     end
-        
+    
     def insert_columns( before, number=1 )
       a = Array.new( number, nil )
       before = col_index( before ) - 1
       @data.map! { |row|  row.insert( before, *a ) }
+      calc_dimensions
     end
     
     def insert_rows( before, number=1 )
       @data = @data.insert( ( col_index( before ) - 1 ), *Array.new( number, [nil] ) )
+      calc_dimensions
     end
     
     def no_headers
-      if sheet.header_cols.zero?
-        @data[ sheet.header_rows..-1 ].dup
-      else
-        @data[ sheet.header_rows..-1 ].map { |row| row[ sheet.header_cols..-1 ] }
-      end
+      @data[ sheet.header_rows..-1 ]
     end
     
     def read( addr )
@@ -134,10 +133,28 @@ require_relative 'address.rb'
     end
     alias [] read
     
+    def reverse_columns!
+      ensure_shape
+      @data = @data.transpose.reverse.transpose
+    end
+    
+    def reverse_rows!
+      @data = skip_headers &:reverse
+    end
+
+    def sort!( &block )
+      @data = skip_headers { |d| d.sort( &block ) }
+      self
+    end
+    
+    def sort_by!( &block )
+      @data = skip_headers { |d| d.sort_by( &block ) }
+    end
+    
     def uniq!( header )
       column = col_index( colref_by_header( header ) )
       @data = @data.uniq { |row| row[ column - 1 ] }
-      self
+      calc_dimensions
     end
     alias unique! uniq!
     
@@ -158,15 +175,24 @@ require_relative 'address.rb'
     private
     
     def calc_dimensions
-      @rows, @cols = @data.length, @data.max_by(&:length).length
+      @rows, @cols = @data.length, @data.max_by { |row| row.length }.length
+      self
     end
     
     def ensure_shape
       calc_dimensions
-      @data.map! { |ar| ar.length == cols ? ar : ar + Array.new( cols - ar.length, nil) }
-      @data
+      @data = @data.map { |ar| ar.length == cols ? ar : ar + Array.new( cols - ar.length, nil) }
     end
     
+    def skip_headers
+      hr = sheet.header_rows
+      if hr > 0
+        block_given? ? @data[ 0..hr - 1 ] + yield( @data[ hr..-1 ] ) : @data[ hr..-1 ]
+      else
+        block_given? ? yield( @data ) : @data 
+      end 
+    end
+  
   end
 
 end

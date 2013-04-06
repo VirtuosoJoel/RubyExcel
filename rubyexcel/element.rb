@@ -58,6 +58,10 @@ module RubyExcel
     def each_cell
       expand( address ).flatten.each { |addr| yield Element.new( sheet, addr ) }
     end
+    
+    def empty?
+      all? { |v| v.to_s.empty? }
+    end
   
     def map!
       expand( address ).flatten.each { |addr| data[ addr ] = yield data[ addr ] }

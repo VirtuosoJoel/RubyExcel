@@ -107,6 +107,11 @@ module RubyExcel
     def getref( header )
       column_id( sheet.row(1).find &/#{header}/ )
     end
+    
+    def value_by_header( header )
+      self[ getref( header ) ]
+    end
+    alias val value_by_header
 
     private
 
