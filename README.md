@@ -1,32 +1,64 @@
 RubyExcel
 =========
 
-An attempt to create Excel-like Workbooks in Ruby.
-
 ####Still under construction! Bugs are inevitable.
+
+This gem is designed as a way to conveniently edit table data before outputting it to Excel (XLSX) or TSV format (which Excel can interpret).
+It attempts to take as much as possible from Excel's API while providing some of the best bits of Ruby ( e.g. Enumerators, Blocks, Regexp )
+As this works directly on the data, editing is faster than using Excel's API.
+
+This was written out of the frustration of editing tabular data using Ruby's multidimensional arrays, without affecting headers and while maintaining code readability.
+
+Key design features taken from Excel:
+- 1-based indexing.
+- referencing objects as if in Excel's API ( Workbook, Sheet, Row, Column, Cell, Range ).
+- Referencing Columns via their Headers for convenience and enhanced code readability.
+- Useful data-handling functions ( e.g. Filter, Match, Sumif ).
+
+Typical usage:
+1) Extract a HTML Table into 2D Array ( normally with Nokogiri )
+2) Organise and interpret data with RubyExcel
+3) Output results into a file.
 
 Examples
 -------
 
 ####Getting started with example data
 
-This is the expected layout of the sheet data
+This is an example of the expected layout of the sheet data (2D Array)
 data = [
-  [ A1, B1, C1 ],
-  [ A2, B2, C2 ], 
-  [ A3, B3, C3 ]
-]
+        [ 'Part',  'Ref1', 'Ref2', 'Qty', 'Cost' ],
+        [ 'Type1', 'QT1',  '231',  1,     35.15  ], 
+        [ 'Type2', 'QT3',  '123',  1,     40     ], 
+        [ 'Type3', 'XT1',  '321',  3,     0.1    ], 
+        [ 'Type1', 'XY2',  '132',  1,     30.00  ], 
+        [ 'Type4', 'XT3',  '312',  2,     3      ], 
+        [ 'Type2', 'QY2',  '213',  1,     99.99  ], 
+        [ 'Type1', 'QT4',  '123',  2,     104    ]
+       ]
 The number of header rows defaults to 1
 ```ruby
 require 'rubyexcel'
 
 wb = RubyExcel::Workbook.new
-sheet1 = wb.load RubyExcel.sample_data
+s = wb.add( 'Sheet1' )
+s.load( data )
 
 #Or:
 
-sheet1 = RubyExcel.sample_sheet
-wb = sheet1.parent
+wb = RubyExcel::Workbook.new
+s = wb.add( 'Sheet1' )
+s.load( RubyExcel.sample_data )
+
+#Or:
+
+wb = RubyExcel::Workbook.new
+s = wb.load( RubyExcel.sample_data )
+
+#Or:
+
+s = RubyExcel.sample_sheet
+wb = s.parent
 ```
 
 ####Reference a cell's value
@@ -333,7 +365,56 @@ rubywb.save_excel( 'c:/example/Output.xlsx' )
 
 ```
 
-####Todo List:
+###Comparison of operations with and without RubyExcel gem
+
+Without RubyExcel (one way to to it):
+```ruby
+#Filter to only 'Part' of 'Type1' and 'Type3' while keeping the header row
+idx = data[0].index( 'Part' )
+data = [ data[0] ] + data[1..-1].select { |row| row[ idx ] =~ /Type[13]/ }
+
+#Keep only the columns 'Cost' and 'Ref2' in that order
+max_size = data.max_by(&:length).length #Standardise the row size to transpose into columns
+data.map! { |row| row.length == max_size ? row : row + Array.new( max_size - row.length, nil) }
+headers = [ 'Cost', 'Ref2' ]
+data = data.transpose.select { |header,_| headers.index(header) }.sort_by { |header,_| headers.index(header) }.transpose
+
+#Get the combined 'Cost' of every 'Part' of 'Type1' and 'Type3'
+find_idx, sum_idx = data[0].index('Part'), data[0].index('Cost')
+data[1..-1].inject(0) { |sum, row| row[find_idx] =~ /Type[13]/ ? sum + row[sum_idx] : sum }
+
+#Write the data to a TSV file
+output = data.map { |row| row.map { |el| "#{el}".strip.gsub( /\s/, ' ' ) }.join "\t" }.join $/
+File.write( 'output.txt', output )
+
+#Drop the data into an Excel sheet ( using Excel and win32ole )
+excel = WIN32OLE::new( 'excel.application' )
+excel.visible = true
+wb = excel.workbooks.add
+sheet = wb.sheets(1)
+sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data[0].length ) ).value = data
+wb.saveas( Dir.pwd.gsub('/','\\') + '\\Output.xlsx' )
+```
+
+With RubyExcel:
+```ruby
+#Filter to only 'Part' of 'Type1' and 'Type3' while keeping the header row
+s.filter!( 'Part', &/Type[13]/ )
+
+#Keep only the columns 'Cost' and 'Ref2' in that order
+s.get_columns!( 'Cost', 'Ref2' )
+
+#Get the combined 'Cost' of every 'Part' of 'Type1' and 'Type3'
+s.sumif( 'Part', 'Cost', &/Type[13]/ )
+
+#Write the data to a TSV file
+File.write( 'output.txt', s.to_s )
+
+#Write the data to an XLSX file ( requires Excel and win32ole )
+s.parent.save_excel( 'Output.xlsx' )
+```
+
+##Todo List:
 
 - add something to the excel tools which takes an excel sheet and a range, and puts outer borders on it, plus optional inner borders.
 
