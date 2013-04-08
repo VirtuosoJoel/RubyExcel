@@ -21,11 +21,7 @@ module RubyExcel
     include Address
   
     def value
-      if address.include? ':'
-        expand( address ).map { |ar| ar.map { |addr| data[ addr ] } }
-      else
-        data[ address ]
-      end
+      address.include?( ':' ) ? expand( address ).map { |ar| ar.map { |addr| data[ addr ] } } : data[ address ]
     end
   
     def value=( val )

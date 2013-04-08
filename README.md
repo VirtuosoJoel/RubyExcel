@@ -3,17 +3,21 @@ RubyExcel
 
 ####Still under construction! Bugs are inevitable.
 
+#### Designed for use with Excel (2007+) and WIN32OLE
+
 This gem is designed as a way to conveniently edit table data before outputting it to Excel (XLSX) or TSV format (which Excel can interpret).
-It attempts to take as much as possible from Excel's API while providing some of the best bits of Ruby ( e.g. Enumerators, Blocks, Regexp )
-As this works directly on the data, editing is faster than using Excel's API.
+It attempts to take as much as possible from Excel's API while providing some of the best bits of Ruby ( e.g. Enumerators, Blocks, Regexp ).
+An important feature is allowing reference to Columns via their Headers for convenience and enhanced code readability.
+As this works directly on the data, processing is faster than using Excel itself.
 
 This was written out of the frustration of editing tabular data using Ruby's multidimensional arrays, without affecting headers and while maintaining code readability.
+Its API is designed to simplify moving code across from VBA into Ruby format when processing spreadsheet data.
+The combination of Ruby, WIN32OLE Excel, and extracting HTML table data is probably quite rare; but I thought I'd share what I came up with.
 
 Key design features taken from Excel:
 - 1-based indexing.
-- referencing objects as if in Excel's API ( Workbook, Sheet, Row, Column, Cell, Range ).
-- Referencing Columns via their Headers for convenience and enhanced code readability.
-- Useful data-handling functions ( e.g. Filter, Match, Sumif ).
+- Referencing objects like Excel's API ( Workbook, Sheet, Row, Column, Cell, Range ).
+- Useful data-handling functions ( e.g. Filter, Match, Sumif, Vlookup ).
 
 Typical usage:
 1) Extract a HTML Table into 2D Array ( normally with Nokogiri )
@@ -219,6 +223,9 @@ s.sumif( 'Part', 'Cost', &/Type1/ ) #=> 169.15
 
 #Remove all rows with duplicate values in the given column (selected by header)
 s.uniq! 'Part'
+
+#Find a value in one column by searching another one (selected by headers)
+s.vlookup( 'Part', 'Ref1', &/Type4/ ) #=> "XT3"
 ```
 
 Row / Column
@@ -362,6 +369,14 @@ rubywb.sheets(1).to_excel
 rubywb.save_excel
 rubywb.save_excel( 'Output.xlsx' )
 rubywb.save_excel( 'c:/example/Output.xlsx' )
+
+#Add borders to a given Excel Range
+#1st Argument: WIN32OLE Range
+#2nd Argument (default false), include inner borders
+#3nd Argument (default 1), weight of borders (0 to 4)
+rubywb.borders( excelwb.sheets(1).usedrange )
+rubywb.borders( excelwb.sheets(1).usedrange, true, 2 )
+rubywb.borders( excelwb.sheets(1).usedrange, false, 0 )
 
 ```
 

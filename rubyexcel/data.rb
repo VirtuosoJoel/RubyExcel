@@ -10,8 +10,8 @@ require_relative 'address.rb'
     include Address
     
     def initialize( sheet, input_data )
-      @sheet = sheet
       ( input_data.kind_of?( Array ) &&  input_data.all? { |el| el.kind_of?( Array ) } ) or fail ArgumentError, 'Input must be Array of Arrays'
+      @sheet = sheet
       @data = input_data.dup
       calc_dimensions
     end
@@ -21,18 +21,13 @@ require_relative 'address.rb'
     end
     
     def append( multi_array )
-      @data
-      @data += multi_array
+      @data << multi_array
       calc_dimensions
     end
     
     def colref_by_header( header )
       sheet.header_rows > 0 or fail NoMethodError, 'No header rows present'
-      @data[ 0..sheet.header_rows-1 ].each do |r|
-        if ( idx = r.index( header ) )
-          return col_letter( idx+1 ) 
-        end
-      end
+      @data[ 0..sheet.header_rows-1 ].each { |r| idx = r.index( header ); return col_letter( idx+1 ) if idx }
       fail IndexError, "#{ header } is not a valid header"
     end
     
@@ -101,14 +96,12 @@ require_relative 'address.rb'
     end
   
     def get_columns!( *headers )
+      headers = headers.flatten
       hrow = sheet.header_rows - 1
       ensure_shape
       @data = @data.transpose.select{ |col| headers.include?( col[hrow] ) }
-      p @data
-      ensure_shape
       @data = @data.sort_by{ |col| headers.index( col[hrow] ) || col[hrow] }.transpose
       calc_dimensions
-      sheet
     end
     
     def insert_columns( before, number=1 )
@@ -143,8 +136,7 @@ require_relative 'address.rb'
     end
 
     def sort!( &block )
-      @data = skip_headers { |d| d.sort( &block ) }
-      self
+      @data = skip_headers { |d| d.sort( &block ) }; self
     end
     
     def sort_by!( &block )
@@ -175,8 +167,7 @@ require_relative 'address.rb'
     private
     
     def calc_dimensions
-      @rows, @cols = @data.length, @data.max_by { |row| row.length }.length
-      self
+      @rows, @cols = @data.length, @data.max_by { |row| row.length }.length; self
     end
     
     def ensure_shape

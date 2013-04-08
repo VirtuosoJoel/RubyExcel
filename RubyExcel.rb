@@ -17,54 +17,39 @@ module RubyExcel
     
     def <<( other )
       case other
-      when Workbook
-        other.inject( @sheets, :<< )
-      when Sheet
-        @sheets << other
+      when Workbook ; other.inject( @sheets, :<< )
+      when Sheet ; @sheets << other
       end
     end
     
     def add( ref=nil )
       case ref
-      when nil
-        s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
-      when Sheet
-        s = ref
-        s.workbook = self
-      when String
-        s = Sheet.new( ref, self )
-      else
-        fail TypeError, "Unsupported Type: #{ ref.class }"
+      when nil ; s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
+      when Sheet ; ( s = ref ).workbook = self
+      when String ; s = Sheet.new( ref, self )
+      else ; fail TypeError, "Unsupported Type: #{ ref.class }"
       end
-      @sheets << s
-      s
+      @sheets << s; s
     end
     alias add_sheet add
     
     def clear_all
-      @sheets = []
-      self
+      @sheets = []; self
     end
     
     def delete( ref )
       case ref
-      when Fixnum
-        @sheets.delete_at( ref - 1 )
-      when String
-        @sheets.reject! { |s| s.name == ref }
-      when Regexp
-        @sheets.reject! { |s| s.name =~ ref }
-      when Sheet
-        @sheets.reject! { |s| s == ref }
-      else
-        fail ArgumentError, "Unrecognised Argument Type: #{ ref.class }"
-      end
-      self
+      when Fixnum ; @sheets.delete_at( ref - 1 )
+      when String ; @sheets.reject! { |s| s.name == ref }
+      when Regexp ; @sheets.reject! { |s| s.name =~ ref }
+      when Sheet ; @sheets.reject! { |s| s == ref }
+      else ; fail ArgumentError, "Unrecognised Argument Type: #{ ref.class }"
+      end ; self
     end
     
     def dup
       wb = Workbook.new
-      self.each {|s| wb.add s.dup }
+      self.each { |s| wb.add s.dup }
       wb
     end
     
@@ -95,8 +80,6 @@ module RubyExcel
       return to_enum(:each) unless block_given?
       @sheets.each { |s| yield s }
     end
-    
-    include Excel_Tools
     
   end
 
@@ -131,23 +114,17 @@ module RubyExcel
     
     def -( other )
       case other
-      when Array
-        Workbook.new.load( data.all - other )
-      when Sheet
-        Workbook.new.load( data.all - other.data.no_headers )
-      else
-        fail ArgumentError, "Unsupported class: #{ other.class }"
+      when Array ; Workbook.new.load( data.all - other )
+      when Sheet ; Workbook.new.load( data.all - other.data.no_headers )
+      else ; fail ArgumentError, "Unsupported class: #{ other.class }"
       end
     end
     
     def <<( other )
       case other
-      when Array
-        load( data.all + other, header_rows )
-      when Sheet
-        load( data.all + other.data.no_headers, header_rows )
-      else
-        fail ArgumentError, "Unsupported class: #{ other.class }"
+      when Array ; load( data.all + other, header_rows )
+      when Sheet ; load( data.all + other.data.no_headers, header_rows )
+      else ; fail ArgumentError, "Unsupported class: #{ other.class }"
       end
     end
     
@@ -166,15 +143,12 @@ module RubyExcel
     alias ch column_by_header
     
     def columns( start_column = 'A', end_column = data.cols )
-      start_column, end_column = col_letter( start_column ), col_letter( end_column )
       return to_enum(:columns, start_column, end_column) unless block_given?
-      ( start_column..end_column ).each { |idx| yield column( idx ) }
-      self
+      ( col_letter( start_column )..col_letter( end_column ) ).each { |idx| yield column( idx ) }; self
     end
     
     def compact!
-      data.compact!
-      self
+      data.compact!; self
     end
     
     def delete
@@ -182,13 +156,11 @@ module RubyExcel
     end
     
     def delete_rows_if
-      rows.reverse_each { |r| r.delete if yield r }
-      self
+      rows.reverse_each { |r| r.delete if yield r }; self
     end
     
     def delete_columns_if
-      columns.reverse_each { |c| c.delete if yield c }
-      self
+      columns.reverse_each { |c| c.delete if yield c }; self
     end
     
     def dup
@@ -211,8 +183,7 @@ module RubyExcel
     end
 
     def filter!( ref, &block )
-      data.filter!( ref, &block )
-      self
+      data.filter!( ref, &block ); self
     end
     
     def get_columns( *headers )
@@ -221,19 +192,16 @@ module RubyExcel
     alias gc get_columns
     
     def get_columns!( *headers )
-      data.get_columns!( *headers )
-      self
+      data.get_columns!( *headers ); self
     end
     alias gc! get_columns!
     
     def insert_columns( *args )
-      data.insert_columns( *args )
-      self
+      data.insert_columns( *args ); self
     end
     
     def insert_rows( *args )
-      data.insert_rows( *args )
-      self
+      data.insert_rows( *args ); self
     end
     
     def inspect
@@ -242,8 +210,7 @@ module RubyExcel
     
     def load( input_data, header_rows=1 )
       @header_rows = header_rows
-      @data = Data.new( self, input_data )
-      self
+      @data = Data.new( self, input_data ); self
     end
     
     def match( header, &block )
@@ -277,28 +244,20 @@ module RubyExcel
     
     def rows( start_row = 1, end_row = data.rows )
       return to_enum(:rows, start_row, end_row) unless block_given?
-      ( start_row..end_row ).each { |idx| yield row( idx ) }
-      self
+      ( start_row..end_row ).each { |idx| yield row( idx ) }; self
     end
     
     def sort!( &block )
-      data.sort! &block
-      self
+      data.sort!( &block ); self
     end
     
     def sort_by!( &block )
-      data.sort_by! &block
-      self
+      data.sort_by!( &block ); self
     end
     
     def sumif( find_header, sum_header )
-      col1 = column_by_header( find_header )
-      col2 = column_by_header( sum_header )
-      total = 0
-      col1.each_cell do |ce|
-        total += col2[ ce.row ] if yield( ce.value ) && ce.row > header_rows
-      end
-      total
+      find_col, sum_col  = ch( find_header ), ch( sum_header )
+      find_col.each_cell.inject(0) { |sum,ce| yield( ce.value ) && ce.row > header_rows ? sum + sum_col[ ce.row ] : sum }
     end
     
     def to_a
@@ -314,10 +273,14 @@ module RubyExcel
     end
     
     def uniq!( header )
-      data.uniq!( header )
-      self
+      data.uniq!( header ); self
     end
     alias unique! uniq!
+    
+    def vlookup( find_header, return_header, &block )
+      find_col, return_col  = ch( find_header ), ch( return_header )
+      return_col[ row_id( find_col.find( &block ) ) ] rescue nil
+    end
     
   end
   

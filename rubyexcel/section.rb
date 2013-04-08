@@ -43,8 +43,7 @@ module RubyExcel
     alias [] read
     
     def summarise
-      h = Hash.new(0)
-      each_wh { |v| h[v]+=1 }; h
+      each_wh.inject( Hash.new(0) ) { |h, v| h[v]+=1; h }
     end
     alias summarize summarise
     
@@ -75,6 +74,12 @@ module RubyExcel
       each_address { |addr| yield Element.new( sheet, addr ) }
     end
     
+    def each_cell_without_headers
+      return to_enum(:each_cell) unless block_given?
+      each_address { |addr| yield Element.new( sheet, addr ) }
+    end
+    alias each_cell_wh each_cell_without_headers
+    
     def map!
       return to_enum(:map!) unless block_given?
       each_address { |addr| data[addr] = ( yield data[addr] ) }
@@ -84,8 +89,7 @@ module RubyExcel
     
     def translate_address( addr )
       case self
-      when Row
-        col_letter( addr ) + idx.to_s
+      when Row ; col_letter( addr ) + idx.to_s
       when Column
         addr = addr.to_s unless addr.is_a?( String )
         fail ArgumentError, "Invalid address : #{ addr }" if addr =~ /[^\d]/

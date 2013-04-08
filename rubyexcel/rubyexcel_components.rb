@@ -6,7 +6,6 @@ require_relative 'section.rb'
 module RubyExcel
 
   def self.sample_data
-    #a=[];8.times{|t|b=[];c='A';5.times{b<<"#{c}#{t+1}";c.next!};a<<b};a
     [
       [ 'Part',  'Ref1', 'Ref2', 'Qty', 'Cost' ],
       [ 'Type1', 'QT1',  '231',  1,     35.15  ], 

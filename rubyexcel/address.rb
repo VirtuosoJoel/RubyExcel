@@ -20,19 +20,18 @@ module RubyExcel
     def col_letter( index )
       return index if index.is_a? String
       index > 0 or fail ArgumentError, 'Indexing is 1-based'
-      a = 'A' ; return a if index == 1
-      (index - 1).times{ a.next! }; a
+      a = 'A'; ( index - 1 ).times { a.next! }; a
     end
   
     def column_id( address )
-      address[/[A-Z]+/] or fail ArgumentError, "Invalid address: #{ address }"
+      address[/[A-Z]+/]
     end
     
     def expand( address )
       return [[address]] unless address.include? ':'
       address.upcase.match( /([A-Z]+)(\d+):([A-Z]+)(\d+)/i )
       start_col, end_col, start_row, end_row = [ $1, $3 ].sort + [ $2.to_i, $4.to_i ].sort
-      (start_row..end_row).map { |r| (start_col..end_col).map { |c| "#{ c }#{ r }" } }
+      ( start_row..end_row ).map { |r| ( start_col..end_col ).map { |c| c + r.to_s } } 
     end
     
     def indices_to_address( row_idx, column_idx )
@@ -57,7 +56,6 @@ module RubyExcel
     end
     
     def row_id( address )
-      return nil unless address
       address[/\d+/].to_i
     end
     
