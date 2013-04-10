@@ -15,14 +15,14 @@ Its API is designed to simplify moving code across from VBA into Ruby format whe
 The combination of Ruby, WIN32OLE Excel, and extracting HTML table data is probably quite rare; but I thought I'd share what I came up with.
 
 Key design features taken from Excel:
-- 1-based indexing.
-- Referencing objects like Excel's API ( Workbook, Sheet, Row, Column, Cell, Range ).
-- Useful data-handling functions ( e.g. Filter, Match, Sumif, Vlookup ).
+* 1-based indexing.
+* Referencing objects like Excel's API ( Workbook, Sheet, Row, Column, Cell, Range ).
+* Useful data-handling functions ( e.g. Filter, Match, Sumif, Vlookup ).
 
 Typical usage:
-1) Extract a HTML Table into 2D Array ( normally with Nokogiri )
-2) Organise and interpret data with RubyExcel
-3) Output results into a file.
+1. Extract a HTML Table into 2D Array ( normally with Nokogiri )
+2. Organise and interpret data with RubyExcel
+3. Output results into a file.
 
 Examples
 -------
@@ -30,6 +30,7 @@ Examples
 ####Getting started with example data
 
 This is an example of the expected layout of the sheet data (2D Array)
+```ruby
 data = [
         [ 'Part',  'Ref1', 'Ref2', 'Qty', 'Cost' ],
         [ 'Type1', 'QT1',  '231',  1,     35.15  ], 
@@ -40,6 +41,7 @@ data = [
         [ 'Type2', 'QY2',  '213',  1,     99.99  ], 
         [ 'Type1', 'QT4',  '123',  2,     104    ]
        ]
+```
 The number of header rows defaults to 1
 ```ruby
 require 'rubyexcel'
@@ -364,7 +366,7 @@ h = {
       }
     }
 
-#Import the Sash to a Sheet
+#Import the Hash to a Sheet
 s.load( h )
 #Or append the Hash to a Sheet
 s << h
