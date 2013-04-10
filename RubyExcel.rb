@@ -17,9 +17,12 @@ module RubyExcel
     
     def <<( other )
       case other
-      when Workbook ; other.inject( @sheets, :<< )
-      when Sheet ; @sheets << other
+      when Workbook ; other.each { |sht| sht.workbook = self; @sheets << sht }
+      when Sheet ; @sheets << other; other.workbook = self
+      when Array ; @sheets << add.load( other )
+      else ; fail TypeError, "Unsupported Type: #{ other.class }"
       end
+      self
     end
     
     def add( ref=nil )
@@ -123,6 +126,7 @@ module RubyExcel
     def <<( other )
       case other
       when Array ; load( data.all + other, header_rows )
+      when Hash ; load( data.all + _convert_hash( other ) )
       when Sheet ; load( data.all + other.data.no_headers, header_rows )
       else ; fail ArgumentError, "Unsupported class: #{ other.class }"
       end
@@ -209,6 +213,8 @@ module RubyExcel
     end
     
     def load( input_data, header_rows=1 )
+      input_data = _convert_hash(input_data) if input_data.is_a?(Hash)
+      input_data.is_a?(Array) or fail ArgumentError, 'Input must be an Array or Hash'
       @header_rows = header_rows
       @data = Data.new( self, input_data ); self
     end
@@ -269,7 +275,7 @@ module RubyExcel
     end
     
     def to_s
-      data.nil? ? '' : data.map { |ar| ar.join "\t" }.join( $/ )
+      data.nil? ? '' : data.map { |ar| ar.map { |v| v.to_s.gsub(/\t|\n/,' ') }.join "\t" }.join( $/ )
     end
     
     def uniq!( header )
@@ -282,6 +288,16 @@ module RubyExcel
       return_col[ row_id( find_col.find( &block ) ) ] rescue nil
     end
     
+    private
+    
+    def _hash_to_a(h)
+      h.map { |k,v| v.is_a?(Hash) ? _hash_to_a(v).map { |val| ([ k ] + [ val ]).flatten(1) } : [ k, v ] }.flatten(1)
+    end
+
+    def _convert_hash(h)
+      _hash_to_a(h).each_slice(2).map { |a1,a2| a1 << a2.last }
+    end
+
   end
   
 end

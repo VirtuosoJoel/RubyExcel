@@ -4,18 +4,18 @@ module ExcelConstants; end
 
 module RubyExcel
 
+  def self.borders( range, weight=1, inner=false )
+    range.ole_respond_to?( :borders ) or fail ArgumentError, 'First Argument must be WIN32OLE Range'
+    [0,1,2,3].include?( weight ) or fail ArgumentError, "Invalid line weight #{ weight }. Must be from 0 to 3"
+    defined?( ExcelConstants::XlEdgeLeft ) or WIN32OLE.const_load( range.application, ExcelConstants )
+    consts = [ ExcelConstants::XlEdgeLeft, ExcelConstants::XlEdgeTop, ExcelConstants::XlEdgeBottom, ExcelConstants::XlEdgeRight, ExcelConstants::XlInsideVertical, ExcelConstants::XlInsideHorizontal ]
+    inner or consts.pop(2)
+    weight = [ 0, ExcelConstants::XlThin, ExcelConstants::XlMedium, ExcelConstants::XlThick ][ weight ]
+    consts.each { |const| weight.zero? ? range.Borders( const ).linestyle = ExcelConstants::XlNone : range.Borders( const ).weight = weight }
+    range
+  end
+
   class Workbook
-  
-    def borders( range, inner=false, weight=1 )
-      range.ole_respond_to?( :borders ) or fail ArgumentError, 'First Argument must be WIN32OLE Range'
-      [0,1,2,3].include?( weight ) or fail ArgumentError, "Invalid line weight #{ weight }. Must be from 0 to 3"
-      defined?( ExcelConstants::XlEdgeLeft ) or WIN32OLE.const_load( range.application, ExcelConstants )
-      consts = [ ExcelConstants::XlEdgeLeft, ExcelConstants::XlEdgeTop, ExcelConstants::XlEdgeBottom, ExcelConstants::XlEdgeRight, ExcelConstants::XlInsideVertical, ExcelConstants::XlInsideHorizontal ]
-      inner or consts.pop(2)
-      weight = [ 0, ExcelConstants::XlThin, ExcelConstants::XlMedium, ExcelConstants::XlThick ][ weight ]
-      consts.each { |const| weight.zero? ? range.Borders( const ).linestyle = ExcelConstants::XlNone : range.Borders( const ).weight = weight }
-      range
-    end
   
     def dump_to_sheet( data, sheet=nil )
       data.is_a?( Array ) or fail ArgumentError, "Invalid data type: #{ data.class }"
@@ -39,9 +39,9 @@ module RubyExcel
 
     def make_sheet_pretty( sheet )
       c = sheet.cells
-      c.EntireColumn.AutoFit
-      c.HorizontalAlignment = -4108
-      c.VerticalAlignment = -4108
+      c.entireColumn.autoFit
+      c.horizontalAlignment = -4108
+      c.verticalAlignment = -4108
       sheet
     end
     
@@ -53,7 +53,7 @@ module RubyExcel
     def to_excel
       self.sheets.count == self.sheets.map(&:name).uniq.length or fail NoMethodError, 'Duplicate sheet name'
       wb = get_workbook
-      wb.parent.DisplayAlerts = false
+      wb.parent.displayAlerts = false
       first_time = true
       self.each do |s|
         sht = ( first_time ? wb.sheets(1) : wb.sheets.add( { 'after' => wb.sheets( wb.sheets.count ) } ) ); first_time = false

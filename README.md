@@ -340,7 +340,58 @@ s.offset( 'A2', -1, 0 ) #=> "A1"
 
 ```
 
+Extra Stuff
+```ruby
+#Import a nested Hash (useful if you're summarising data before handing it to RubyExcel)
+
+#Here's an example Hash
+h = {
+      Part1: {
+        Type1: {
+          SubType1: 1, SubType2: 2, SubType3: 3
+        },
+        Type2: {
+          SubType1: 4, SubType2: 5, SubType3: 6
+        }
+      },
+      Part2: {
+        Type1: {
+          SubType1: 1, SubType2: 2, SubType3: 3
+        },
+        Type2: {
+          SubType1: 4, SubType2: 5, SubType3: 6
+        }
+      }
+    }
+
+#Import the Sash to a Sheet
+s.load( h )
+#Or append the Hash to a Sheet
+s << h
+
+#Convert the symbols to strings (Not essential, but Excel can't handle Symbols in output)
+s.rows { |r| r.map! { |v| v.is_a?(Symbol) ? v.to_s : v } }
+
+#Have a look at the results
+require 'pp'
+pp s.to_a
+[["Part1", "Type1", "SubType1", 1],
+ ["Part1", "Type1", "SubType2", 2],
+ ["Part1", "Type1", "SubType3", 3],
+ ["Part1", "Type2", "SubType1", 4],
+ ["Part1", "Type2", "SubType2", 5],
+ ["Part1", "Type2", "SubType3", 6],
+ ["Part2", "Type1", "SubType1", 1],
+ ["Part2", "Type1", "SubType2", 2],
+ ["Part2", "Type1", "SubType3", 3],
+ ["Part2", "Type2", "SubType1", 4],
+ ["Part2", "Type2", "SubType2", 5],
+ ["Part2", "Type2", "SubType3", 6]]
+
+```
+
 ####Excel Tools for output convenience ( requires win32ole and Excel 2007 or later )
+Make sure all your data types are compatible with Excel first!
 ```ruby
 #Sample RubyExcel::Workbook to work with
 rubywb = RubyExcel.sample_sheet.parent
@@ -372,11 +423,17 @@ rubywb.save_excel( 'c:/example/Output.xlsx' )
 
 #Add borders to a given Excel Range
 #1st Argument: WIN32OLE Range
-#2nd Argument (default false), include inner borders
-#3nd Argument (default 1), weight of borders (0 to 4)
-rubywb.borders( excelwb.sheets(1).usedrange )
-rubywb.borders( excelwb.sheets(1).usedrange, true, 2 )
-rubywb.borders( excelwb.sheets(1).usedrange, false, 0 )
+#2nd Argument (default 1), weight of borders (0 to 4)
+#3rd Argument (default false), include inner borders
+RubyExcel.borders( excelwb.sheets(1).usedrange ) #Give used range outer borders
+RubyExcel.borders( excelwb.sheets(1).usedrange, 2, true ) #Give used range inner and outer borders, medium weight
+RubyExcel.borders( excelwb.sheets(1).usedrange, 0, false ) #Clear outer borders from used range
+
+#You can even enter formula strings and Excel will evaluate them in the output.
+s = rubywb.sheets(1)
+s.row(1) << 'Formula'
+s.rows(2) { |row| row << "=SUM(D#{ row.idx }:E#{ row.idx })" }
+s.to_excel
 
 ```
 
@@ -431,18 +488,4 @@ s.parent.save_excel( 'Output.xlsx' )
 
 ##Todo List:
 
-- add something to the excel tools which takes an excel sheet and a range, and puts outer borders on it, plus optional inner borders.
-
-- add an option to split the data whilst retaining the headers in each output, like partition
-
-- add the ability to import (recursively?) a nested hash into something like this:
-
-{ Type1: { SubType1: 1, SubType2: 2, SubType3: 3 }, Type2: { SubType1: 4, SubType2: 5, SubType3: 6 } }
-<table>
-<tr>
-<td>Type1<td>SubType1<td>1
-<tr><td><td>SubType2<td>2
-<tr><td><td>SubType3<td>3
-<tr><td>Type2<td>SubType1<td>4
-<tr><td><td>SubType2<td>5
-<tr><td><td>SubType3<td>6
+- Find bugs and extirpate them.
