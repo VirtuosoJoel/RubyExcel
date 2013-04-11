@@ -3,14 +3,15 @@ RubyExcel
 
 ####Still under construction! Bugs are inevitable.
 
-#### Designed for use with Excel (2007+) and WIN32OLE
+####Designed for use with Excel (2007+) and WIN32OLE
 
 This gem is designed as a way to conveniently edit table data before outputting it to Excel (XLSX) or TSV format (which Excel can interpret).
 It attempts to take as much as possible from Excel's API while providing some of the best bits of Ruby ( e.g. Enumerators, Blocks, Regexp ).
 An important feature is allowing reference to Columns via their Headers for convenience and enhanced code readability.
 As this works directly on the data, processing is faster than using Excel itself.
 
-This was written out of the frustration of editing tabular data using Ruby's multidimensional arrays, without affecting headers and while maintaining code readability.
+This was written out of the frustration of editing tabular data using Ruby's multidimensional arrays,
+without affecting headers and while maintaining code readability.
 Its API is designed to simplify moving code across from VBA into Ruby format when processing spreadsheet data.
 The combination of Ruby, WIN32OLE Excel, and extracting HTML table data is probably quite rare; but I thought I'd share what I came up with.
 
@@ -20,14 +21,14 @@ Key design features taken from Excel:
 * Useful data-handling functions ( e.g. Filter, Match, Sumif, Vlookup ).
 
 Typical usage:
-1. Extract a HTML Table into 2D Array ( normally with Nokogiri )
-2. Organise and interpret data with RubyExcel
-3. Output results into a file.
+* Extract a HTML Table into 2D Array ( normally with Nokogiri )
+* Organise and interpret data with RubyExcel
+* Output results into a file.
 
 Examples
 -------
 
-####Getting started with example data
+###Getting started with example data
 
 This is an example of the expected layout of the sheet data (2D Array)
 ```ruby
@@ -67,7 +68,7 @@ s = RubyExcel.sample_sheet
 wb = s.parent
 ```
 
-####Reference a cell's value
+###Reference a cell's value
 
 ```ruby
 s['A7']
@@ -79,7 +80,7 @@ s.column('A')[7]
 s.column('A')['7']
 ```
 
-####Reference a group of cells
+###Reference a group of cells
 
 ```ruby
 s['A1:B3'] #=> Value
@@ -91,9 +92,9 @@ s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
 ```
 
-####Detailed Interactions
+###Detailed Interactions
 
-Workbook
+####Workbook
 ```ruby
 #Create a workbook
 wb = RubyExcel::Workbook.new
@@ -126,7 +127,7 @@ wb.sort! { |x,y| x.name <=> y.name }
 wb.sort_by! &:name
 ```
 
-Sheet
+####Sheet
 ```
 #Create a sheet
 s = wb.add #Name defaults to 'Sheet' + total number of sheets
@@ -230,15 +231,18 @@ s.uniq! 'Part'
 s.vlookup( 'Part', 'Ref1', &/Type4/ ) #=> "XT3"
 ```
 
-Row / Column
+####Row / Column
 ```ruby
 #Reference a Row or Column
 row = s.row(2)
 col = s.column('B')
 
-#Append a value
-#Note: Only extends the data boundaries when at the first row or column.
-#This allows looping through an entire row or column to append single values without worrying about using the correct index.
+=begin
+Append a value
+Note: Only extends the data boundaries when at the first row or column.
+This allows looping through an entire row or column to append single values,
+without worrying about using the correct index.
+=end
 s.row(1) << 'New'
 s.rows(2) { |r| r << 'Column' }
 s.column(1) << 'New'
@@ -279,7 +283,7 @@ row.value_by_header( 'Part' ) #=> 'Type1'
 row.val( 'Part' ) #=> 'Type1'
 ```
 
-Cell / Range (Elements)
+####Cell / Range (Elements)
 ```ruby
 #Reference a Cell or Range
 cell = s.cell( 2, 2 )
@@ -342,7 +346,7 @@ s.offset( 'A2', -1, 0 ) #=> "A1"
 
 ```
 
-Extra Stuff
+###Extra Stuff
 ```ruby
 #Import a nested Hash (useful if you're summarising data before handing it to RubyExcel)
 
@@ -441,7 +445,7 @@ s.to_excel
 
 ###Comparison of operations with and without RubyExcel gem
 
-Without RubyExcel (one way to to it):
+####Without RubyExcel (one way to to it):
 ```ruby
 #Filter to only 'Part' of 'Type1' and 'Type3' while keeping the header row
 idx = data[0].index( 'Part' )
@@ -470,7 +474,7 @@ sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data[0].length ) ).v
 wb.saveas( Dir.pwd.gsub('/','\\') + '\\Output.xlsx' )
 ```
 
-With RubyExcel:
+####With RubyExcel:
 ```ruby
 #Filter to only 'Part' of 'Type1' and 'Type3' while keeping the header row
 s.filter!( 'Part', &/Type[13]/ )
@@ -489,5 +493,7 @@ s.parent.save_excel( 'Output.xlsx' )
 ```
 
 ##Todo List:
+
+- Alter methods which rely on "headers" to be able to take a Column object as an argument (more flexible). 
 
 - Find bugs and extirpate them.
