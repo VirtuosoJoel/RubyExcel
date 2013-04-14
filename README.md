@@ -128,7 +128,7 @@ wb.sort_by! &:name
 ```
 
 ####Sheet
-```
+```ruby
 #Create a sheet
 s = wb.add #Name defaults to 'Sheet' + total number of sheets
 s = wb.add( 'Sheet1' )
@@ -494,6 +494,8 @@ s.parent.save_excel( 'Output.xlsx' )
 
 ##Todo List:
 
-- Alter methods which rely on "headers" to be able to take a Column object as an argument (more flexible). 
+- Alter methods which rely on "headers" to be able to take a Column object as an argument (more flexible).
+
+- Set up non-bang versions of methods where appropriate
 
 - Find bugs and extirpate them.
