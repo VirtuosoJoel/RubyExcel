@@ -20,6 +20,10 @@ module RubyExcel
       end
       data[ translate_address( lastone ) ] = value
     end
+    
+    def cell( ref )
+      Element.new( sheet, translate_address( ref ) )
+    end
   
     def delete
       data.delete( self )
@@ -107,6 +111,11 @@ module RubyExcel
       @idx = idx.to_i
       super( sheet )
     end
+  
+    def cell_by_header( header )
+      cell( getref( header ) )
+    end
+    alias cell_h cell_by_header
   
     def getref( header )
       column_id( sheet.row(1).find &/#{header}/ )

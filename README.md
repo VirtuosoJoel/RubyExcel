@@ -500,4 +500,8 @@ s.parent.save_excel( 'Output.xlsx' )
 
 - Set up non-bang versions of methods where appropriate
 
+- Add an alternative filter which splits the results into two sheets like Array#partition
+
+- Alter the "save_excel" command to run invisibly and close down when completed.
+
 - Find bugs and extirpate them.

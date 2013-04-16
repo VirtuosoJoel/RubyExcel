@@ -81,7 +81,7 @@ require_relative 'address.rb'
     end
     
     def dup
-      Data.new( sheet, @data.dup )
+      Data.new( sheet, @data.map(&:dup) )
     end
     
     def empty?
