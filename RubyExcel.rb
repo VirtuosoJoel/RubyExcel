@@ -191,7 +191,7 @@ module RubyExcel
     end
     
     def get_columns( *headers )
-      dup.data.get_columns!( *headers )
+      dup.get_columns!( *headers )
     end
     alias gc get_columns
     

@@ -16,14 +16,16 @@ Its API is designed to simplify moving code across from VBA into Ruby format whe
 The combination of Ruby, WIN32OLE Excel, and extracting HTML table data is probably quite rare; but I thought I'd share what I came up with.
 
 Key design features taken from Excel:
+
 * 1-based indexing.
 * Referencing objects like Excel's API ( Workbook, Sheet, Row, Column, Cell, Range ).
 * Useful data-handling functions ( e.g. Filter, Match, Sumif, Vlookup ).
 
 Typical usage:
-* Extract a HTML Table into 2D Array ( normally with Nokogiri )
-* Organise and interpret data with RubyExcel
-* Output results into a file.
+
+1. Extract a HTML Table into 2D Array ( normally with Nokogiri )
+2. Organise and interpret data with RubyExcel
+3. Output results into a file.
 
 Examples
 -------
