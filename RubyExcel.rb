@@ -18,36 +18,39 @@ module RubyExcel
     def <<( other )
       case other
       when Workbook ; other.each { |sht| sht.workbook = self; @sheets << sht }
-      when Sheet ; @sheets << other; other.workbook = self
-      when Array ; @sheets << add.load( other )
-      else ; fail TypeError, "Unsupported Type: #{ other.class }"
+      when Sheet    ; @sheets << other; other.workbook = self
+      when Array    ; @sheets << add.load( other )
+      else          ; fail TypeError, "Unsupported Type: #{ other.class }"
       end
       self
     end
     
     def add( ref=nil )
       case ref
-      when nil ; s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
-      when Sheet ; ( s = ref ).workbook = self
+      when nil    ; s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
+      when Sheet  ; ( s = ref ).workbook = self
       when String ; s = Sheet.new( ref, self )
-      else ; fail TypeError, "Unsupported Type: #{ ref.class }"
+      else        ; fail TypeError, "Unsupported Type: #{ ref.class }"
       end
-      @sheets << s; s
+      @sheets << s
+      s
     end
     alias add_sheet add
     
     def clear_all
       @sheets = []; self
     end
+    alias delete_all clear_all
     
     def delete( ref )
       case ref
       when Fixnum ; @sheets.delete_at( ref - 1 )
       when String ; @sheets.reject! { |s| s.name == ref }
       when Regexp ; @sheets.reject! { |s| s.name =~ ref }
-      when Sheet ; @sheets.reject! { |s| s == ref }
-      else ; fail ArgumentError, "Unrecognised Argument Type: #{ ref.class }"
-      end ; self
+      when Sheet  ; @sheets.reject! { |s| s == ref }
+      else        ; fail ArgumentError, "Unrecognised Argument Type: #{ ref.class }"
+      end
+      self
     end
     
     def dup
@@ -69,18 +72,22 @@ module RubyExcel
       ref.is_a?( Fixnum ) ? @sheets[ ref - 1 ] : @sheets.find { |s| s.name =~ /^#{ ref }$/i }
     end
     
-    def sort!
-      @sheets = @sheets.sort(&block)
+    def sort( &block )
+      dup.sort!( &block )
+    end
+    
+    def sort!( &block )
+      @sheets = @sheets.sort( &block )
     end
     
     def sort_by!( &block )
-      @sheets = @sheets.sort_by(&block)
+      @sheets = @sheets.sort_by( &block )
     end
     
     include Enumerable
     
     def each
-      return to_enum(:each) unless block_given?
+      return to_enum( :each ) unless block_given?
       @sheets.each { |s| yield s }
     end
     
@@ -99,7 +106,7 @@ module RubyExcel
       @workbook = workbook
       @name = name
       @header_rows = nil
-      @data = Data.new( self, [[]] )
+      @data = Data.new( self, [ [] ] )
     end
 
     def[]( addr )
@@ -119,16 +126,16 @@ module RubyExcel
       case other
       when Array ; Workbook.new.load( data.all - other )
       when Sheet ; Workbook.new.load( data.all - other.data.no_headers )
-      else ; fail ArgumentError, "Unsupported class: #{ other.class }"
+      else       ; fail ArgumentError, "Unsupported class: #{ other.class }"
       end
     end
     
     def <<( other )
       case other
       when Array ; load( data.all + other, header_rows )
-      when Hash ; load( data.all + _convert_hash( other ) )
+      when Hash  ; load( data.all + _convert_hash( other ) )
       when Sheet ; load( data.all + other.data.no_headers, header_rows )
-      else ; fail ArgumentError, "Unsupported class: #{ other.class }"
+      else       ; fail ArgumentError, "Unsupported class: #{ other.class }"
       end
     end
     
@@ -142,13 +149,14 @@ module RubyExcel
     end
     
     def column_by_header( header )
-      Column.new( self, data.colref_by_header( header ) )
+      header.is_a?( Column ) ? header : Column.new( self, data.colref_by_header( header ) )
     end
     alias ch column_by_header
     
     def columns( start_column = 'A', end_column = data.cols )
-      return to_enum(:columns, start_column, end_column) unless block_given?
-      ( col_letter( start_column )..col_letter( end_column ) ).each { |idx| yield column( idx ) }; self
+      return to_enum( :columns, start_column, end_column ) unless block_given?
+      ( col_letter( start_column )..col_letter( end_column ) ).each { |idx| yield column( idx ) }
+      self
     end
     
     def compact!
@@ -160,10 +168,12 @@ module RubyExcel
     end
     
     def delete_rows_if
+      return to_enum( :delete_rows_if ) unless block_given?
       rows.reverse_each { |r| r.delete if yield r }; self
     end
     
     def delete_columns_if
+      return to_enum( :delete_columns_if ) unless block_given?
       columns.reverse_each { |c| c.delete if yield c }; self
     end
     
@@ -262,6 +272,7 @@ module RubyExcel
     end
     
     def sumif( find_header, sum_header )
+      return to_enum( :sumif ) unless block_given?
       find_col, sum_col  = ch( find_header ), ch( sum_header )
       find_col.each_cell.inject(0) { |sum,ce| yield( ce.value ) && ce.row > header_rows ? sum + sum_col[ ce.row ] : sum }
     end

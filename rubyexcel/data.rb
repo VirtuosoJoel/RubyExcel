@@ -26,6 +26,7 @@ require_relative 'address.rb'
     end
     
     def colref_by_header( header )
+      return header.idx if header.is_a?( Column )
       sheet.header_rows > 0 or fail NoMethodError, 'No header rows present'
       @data[ 0..sheet.header_rows-1 ].each { |r| idx = r.index( header ); return col_letter( idx+1 ) if idx }
       fail IndexError, "#{ header } is not a valid header"

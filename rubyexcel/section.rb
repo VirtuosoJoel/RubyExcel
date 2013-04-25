@@ -13,10 +13,9 @@ module RubyExcel
     end
   
     def <<( value )
-      if self.is_a? Row
-        lastone = ( col_index( idx ) == 1 ? data.cols + 1 : data.cols )
-      else
-        lastone = ( col_index( idx ) == 1 ? data.rows + 1 : data.rows )
+      case self
+      when Row ; lastone = ( col_index( idx ) == 1 ? data.cols + 1 : data.cols )
+      else     ; lastone = ( col_index( idx ) == 1 ? data.rows + 1 : data.rows )
       end
       data[ translate_address( lastone ) ] = value
     end
@@ -34,6 +33,7 @@ module RubyExcel
     end
   
     def find
+      return to_enum( :find ) unless block_given?
       each_cell { |ce| return ce.address if yield ce.value }; nil
     end
   
@@ -68,24 +68,24 @@ module RubyExcel
     end
     
     def each_without_headers
-      return to_enum(:each_without_headers) unless block_given?
+      return to_enum( :each_without_headers ) unless block_given?
       each_address_without_headers { |addr| yield data[ addr ] }
     end
     alias each_wh each_without_headers
     
     def each_cell
-      return to_enum(:each_cell) unless block_given?
+      return to_enum( :each_cell ) unless block_given?
       each_address { |addr| yield Element.new( sheet, addr ) }
     end
     
     def each_cell_without_headers
-      return to_enum(:each_cell) unless block_given?
+      return to_enum( :each_cell_without_headers ) unless block_given?
       each_address { |addr| yield Element.new( sheet, addr ) }
     end
     alias each_cell_wh each_cell_without_headers
     
     def map!
-      return to_enum(:map!) unless block_given?
+      return to_enum( :map! ) unless block_given?
       each_address { |addr| data[addr] = ( yield data[addr] ) }
     end
 
@@ -93,7 +93,8 @@ module RubyExcel
     
     def translate_address( addr )
       case self
-      when Row ; col_letter( addr ) + idx.to_s
+      when Row
+        col_letter( addr ) + idx.to_s
       when Column
         addr = addr.to_s unless addr.is_a?( String )
         fail ArgumentError, "Invalid address : #{ addr }" if addr =~ /[^\d]/

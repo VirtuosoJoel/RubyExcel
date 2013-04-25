@@ -48,10 +48,12 @@ module RubyExcel
     include Enumerable
     
     def each
+      return to_enum( :each ) unless block_given?
       expand( address ).flatten.each { |addr| yield data[ addr ] }
     end
     
     def each_cell
+      return to_enum( :each_cell ) unless block_given?
       expand( address ).flatten.each { |addr| yield Element.new( sheet, addr ) }
     end
     
@@ -60,6 +62,7 @@ module RubyExcel
     end
   
     def map!
+      return to_enum( :map! ) unless block_given?
       expand( address ).flatten.each { |addr| data[ addr ] = yield data[ addr ] }
     end
   
