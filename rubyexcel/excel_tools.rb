@@ -31,8 +31,8 @@ module RubyExcel
       excel
     end
     
-    def get_workbook( excel=nil )
-      excel ||= get_excel
+    def get_workbook( excel=nil, invisible = false )
+      excel ||= get_excel( invisible )
       wb = excel.workbooks.add
       ( ( wb.sheets.count.to_i ) - 1 ).times { |time| wb.sheets(2).delete }
       wb
@@ -59,9 +59,9 @@ module RubyExcel
       wb
     end
     
-    def to_excel
+    def to_excel( invisible = false )
       self.sheets.count == self.sheets.map(&:name).uniq.length or fail NoMethodError, 'Duplicate sheet name'
-      wb = get_workbook
+      wb = get_workbook( nil, invisible )
       wb.parent.displayAlerts = false
       first_time = true
       self.each do |s|
