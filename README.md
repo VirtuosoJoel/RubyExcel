@@ -23,7 +23,7 @@ Key design features taken from Excel:
 
 Typical usage:
 
-1. Extract a HTML Table into 2D Array ( normally with Nokogiri )
+1. Extract a HTML Table or CSV File into 2D Array ( normally with Nokogiri / Mechanize )
 2. Organise and interpret data with RubyExcel
 3. Output results into a file.
 
@@ -68,6 +68,11 @@ s = wb.load( RubyExcel.sample_data )
 
 s = RubyExcel.sample_sheet
 wb = s.parent
+```
+
+####Here's an example (using the mechanize gem) of getting data into RubyExcel:
+```ruby
+s = RubyExcel::Workbook.new.load( CSV.parse( Mechanize.new.get('http://example.com/myfile.csv').content ) )
 ```
 
 ###Reference a cell's value
@@ -395,7 +400,7 @@ pp s.to_a
  ["Part2", "Type2", "SubType1", 4],
  ["Part2", "Type2", "SubType2", 5],
  ["Part2", "Type2", "SubType3", 6]]
-
+ 
 ```
 
 ####Excel Tools for output convenience ( requires win32ole and Excel 2007 or later )
@@ -425,6 +430,10 @@ rubywb.to_excel
 rubywb.sheets(1).to_excel
 
 #Output the RubyExcel::Workbook into an Excel Workbook and save the file
+#Note: The default directory is "Documents" or "My Documents" to support Ocra + InnoSetup installs.
+#Note: There is an optional second argument which if set to true doesn't make Excel visible.
+# This is a useful accelerator when running as an automated process.
+# If you set the process to be invisible, don't forget to close Excel after you're finished with it!
 rubywb.save_excel
 rubywb.save_excel( 'Output.xlsx' )
 rubywb.save_excel( 'c:/example/Output.xlsx' )
@@ -502,6 +511,6 @@ s.parent.save_excel( 'Output.xlsx' )
 
 - Add an alternative filter which splits the results into two sheets like Array#partition
 
-- Alter the "save_excel" command to run invisibly and close down when completed.
-
 - Find bugs and extirpate them.
+
+- Optimise slow operations

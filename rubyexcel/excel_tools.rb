@@ -1,4 +1,5 @@
-require 'win32ole'
+require 'win32ole' #Interface with Excel
+require 'win32/registry' #Find Documents / My Documents for default directory
 
 module ExcelConstants; end
 
@@ -24,9 +25,9 @@ module RubyExcel
       sheet
     end
 
-    def get_excel
+    def get_excel( invisible = false )
       excel = WIN32OLE::connect( 'excel.application' ) rescue WIN32OLE::new( 'excel.application' )
-      excel.visible = true
+      excel.visible = true unless invisible
       excel
     end
     
@@ -39,15 +40,23 @@ module RubyExcel
 
     def make_sheet_pretty( sheet )
       c = sheet.cells
+      c.rowheight = 15
       c.entireColumn.autoFit
       c.horizontalAlignment = -4108
       c.verticalAlignment = -4108
       sheet
     end
     
-    def save_excel( filename = 'Output.xlsx' )
-      filename = Dir.pwd.gsub('/','\\') + '\\' + filename unless filename.include?('\\')
-      to_excel.saveas filename
+    def save_excel( filename = 'Output', invisible = false )
+      filename = filename.gsub('/','\\')
+      unless filename.include?('\\')
+        keypath = 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders'
+        documents = Win32::Registry::HKEY_CURRENT_USER.open(keypath)['Personal'] rescue Dir.pwd.gsub('/','\\')
+        filename = documents + '\\' + filename 
+      end
+      wb = to_excel( invisible )
+      wb.saveas filename
+      wb
     end
     
     def to_excel
