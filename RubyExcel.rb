@@ -529,6 +529,35 @@ module RubyExcel
     alias maxcolumn maxcol
     
     #
+    # Allow shorthand range references
+    #
+    
+    def method_missing(m, *args, &block)
+      method_name = m.to_s.upcase.strip
+      if method_name =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+=?\z|\A[A-Z]{1,3}\d+=?\z/
+        if method_name[-1] == '='
+          range( method_name.chop ).value = ( args.length == 1 ? args.first : args )
+        else
+          range( method_name ).value
+        end
+      else
+        super
+      end
+    end
+    
+    #
+    # Allow for method_missing method calls
+    #
+    
+    def respond_to?(meth)
+      if meth.to_s.upcase.strip =~ /\A[A-Z]+\d+:[A-Z]+\d+\z|\A[A-Z]+\d+=?\z/
+        true
+      else
+        super
+      end
+    end
+    
+    #
     # Split the Sheet into two Sheets by evaluating each value in a column
     #
     # @param [String] header the header of the Column which contains the yield value

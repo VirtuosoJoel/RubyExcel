@@ -1,5 +1,9 @@
 module RubyExcel
 
+  #
+  # A Range or Cell in a Sheet
+  #
+
   class Element
     include Address
     include Enumerable
@@ -28,7 +32,7 @@ module RubyExcel
     #
     
     def initialize( sheet, addr )
-      fail ArgumentError, "Invalid range: #{ addr }" unless addr =~ /\A[A-Z]+\d+:[A-Z]+\d+\z|\A[A-Z]+\d+\z/
+      fail ArgumentError, "Invalid range: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}\d+\z/
       @sheet = sheet
       @data = sheet.data
       @address = addr

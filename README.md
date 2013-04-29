@@ -97,6 +97,7 @@ Reference a cell's value
 
 ```ruby
 s['A7']
+s.A7
 s.cell(7,1).value
 s.range('A7').value
 s.row(7)['A']
