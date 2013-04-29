@@ -1,9 +1,20 @@
 require 'win32ole' #Interface with Excel
 require 'win32/registry' #Find Documents / My Documents for default directory
 
+# Holder for WIN32OLE Excel Constants
 module ExcelConstants; end
 
 module RubyExcel
+
+  #
+  # Add borders to an Excel Range
+  #
+  # @param [WIN32OLE::Range] range the Excel Range to add borders to
+  # @param [Fixnum] weight the weight of the borders
+  # @param [Boolean] inner add inner borders
+  # @raise [ArgumentError] 'First Argument must be WIN32OLE Range'
+  # @return [WIN32OLE::Range] the range initially given
+  #
 
   def self.borders( range, weight=1, inner=false )
     range.ole_respond_to?( :borders ) or fail ArgumentError, 'First Argument must be WIN32OLE Range'
@@ -18,18 +29,41 @@ module RubyExcel
 
   class Workbook
   
+    #
+    # Drop a multidimensional Array into an Excel Sheet
+    #
+    # @param [Array<Array>] data the data to place in the Sheet
+    # @param [WIN32OLE::Worksheet, nil] sheet optional WIN32OLE Worksheet to use
+    # @return [WIN32OLE::Worksheet] the Worksheet containing the data
+    #
+  
     def dump_to_sheet( data, sheet=nil )
       data.is_a?( Array ) or fail ArgumentError, "Invalid data type: #{ data.class }"
       sheet ||= get_workbook.sheets(1)
       sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data[0].length ) ).value = data
       sheet
     end
+    
+    #
+    # Open or connect to an Excel instance
+    #
+    # @param [Boolean] invisible leave Excel invisible if creating a new instance
+    # @return [WIN32OLE::Excel] the first available Excel application
+    #
 
     def get_excel( invisible = false )
       excel = WIN32OLE::connect( 'excel.application' ) rescue WIN32OLE::new( 'excel.application' )
       excel.visible = true unless invisible
       excel
     end
+    
+    #
+    # Create a new Excel Workbook
+    #
+    # @param [WIN32OLE::Excel, nil] excel an Excel object to use
+    # @param [Boolean] invisible leave Excel invisible if creating a new instance
+    # @return [WIN32OLE::Workbook] the new Excel Workbook
+    #
     
     def get_workbook( excel=nil, invisible = false )
       excel ||= get_excel( invisible )
@@ -38,14 +72,31 @@ module RubyExcel
       wb
     end
 
+    #
+    # Take an Excel Sheet and standardise some of the formatting
+    #
+    # @param [WIN32OLE::Worksheet] sheet the Sheet to add formatting to
+    # @return [WIN32OLE::Worksheet] the sheet with formatting added
+    #
+    
     def make_sheet_pretty( sheet )
       c = sheet.cells
       c.rowheight = 15
       c.entireColumn.autoFit
       c.horizontalAlignment = -4108
       c.verticalAlignment = -4108
+      sheet.UsedRange.Columns.each { |col| col.ColumnWidth = 30 if col.ColumnWidth > 50 }
+      RubyExcel.borders( sheet.usedrange, 1, true )
       sheet
     end
+    
+    #
+    # Save the RubyExcel::Workbook as an Excel Workbook
+    #
+    # @param [String] filename the filename to save as
+    # @param [Boolean] invisible leave Excel invisible if creating a new instance
+    # @return [WIN32OLE::Workbook] the Workbook, saved as filename.
+    #
     
     def save_excel( filename = 'Output', invisible = false )
       filename = filename.gsub('/','\\')
@@ -59,9 +110,16 @@ module RubyExcel
       wb
     end
     
+    #
+    # Output the RubyExcel::Workbook to Excel
+    #
+    # @param [Boolean] invisible leave Excel invisible if creating a new instance
+    # @return [WIN32OLE::Workbook] the Workbook in Excel
+    #
+    
     def to_excel( invisible = false )
       self.sheets.count == self.sheets.map(&:name).uniq.length or fail NoMethodError, 'Duplicate sheet name'
-      wb = get_workbook( nil, invisible )
+      wb = get_workbook( nil, true )
       wb.parent.displayAlerts = false
       first_time = true
       self.each do |s|
@@ -70,9 +128,10 @@ module RubyExcel
         make_sheet_pretty( dump_to_sheet( s.data.all, sht ) )
       end
       wb.sheets(1).select
+      wb.application.visible = true unless invisible
       wb
     end
     
-  end
+  end # Workbook
   
-end
+end # RubyExcel

@@ -1,19 +1,17 @@
 RubyExcel
 =========
 
-####Still under construction! Bugs are inevitable.
+Designed for Windows with MS Excel
 
-####Designed for use with Excel (2007+) and WIN32OLE
+**Still under construction! Bugs are inevitable.**
 
-This gem is designed as a way to conveniently edit table data before outputting it to Excel (XLSX) or TSV format (which Excel can interpret).
-It attempts to take as much as possible from Excel's API while providing some of the best bits of Ruby ( e.g. Enumerators, Blocks, Regexp ).
-An important feature is allowing reference to Columns via their Headers for convenience and enhanced code readability.
-As this works directly on the data, processing is faster than using Excel itself.
+Introduction
+------------
 
-This was written out of the frustration of editing tabular data using Ruby's multidimensional arrays,
-without affecting headers and while maintaining code readability.
-Its API is designed to simplify moving code across from VBA into Ruby format when processing spreadsheet data.
-The combination of Ruby, WIN32OLE Excel, and extracting HTML table data is probably quite rare; but I thought I'd share what I came up with.
+A Data-analysis tool for Ruby, with an Excel-style API.
+
+Details
+-----
 
 Key design features taken from Excel:
 
@@ -27,12 +25,25 @@ Typical usage:
 2. Organise and interpret data with RubyExcel
 3. Output results into a file.
 
+About
+-----
+
+This gem is designed as a way to conveniently edit table data before outputting it to Excel (XLSX) or TSV format (which Excel can interpret).
+It attempts to take as much as possible from Excel's API while providing some of the best bits of Ruby ( e.g. Enumerators, Blocks, Regexp ).
+An important feature is allowing reference to Columns via their Headers for convenience and enhanced code readability.
+As this works directly on the data, processing is faster than using Excel itself.
+
+This was written out of the frustration of editing tabular data using Ruby's multidimensional arrays,
+without affecting headers and while maintaining code readability.
+Its API is designed to simplify moving code across from VBA into Ruby format when processing spreadsheet data.
+The combination of Ruby, WIN32OLE Excel, and extracting HTML table data is probably quite rare; but I thought I'd share what I came up with.
+
 Examples
--------
+========
 
-###Getting started with example data
+Expected Data Layout (2D Array)
+--------
 
-This is an example of the expected layout of the sheet data (2D Array)
 ```ruby
 data = [
         [ 'Part',  'Ref1', 'Ref2', 'Qty', 'Cost' ],
@@ -46,6 +57,10 @@ data = [
        ]
 ```
 The number of header rows defaults to 1
+
+Loading the data into a Sheet
+--------
+
 ```ruby
 require 'rubyexcel'
 
@@ -53,29 +68,32 @@ wb = RubyExcel::Workbook.new
 s = wb.add( 'Sheet1' )
 s.load( data )
 
-#Or:
+Or:
 
 wb = RubyExcel::Workbook.new
 s = wb.add( 'Sheet1' )
 s.load( RubyExcel.sample_data )
 
-#Or:
+Or:
 
 wb = RubyExcel::Workbook.new
 s = wb.load( RubyExcel.sample_data )
 
-#Or:
+Or:
 
 s = RubyExcel.sample_sheet
 wb = s.parent
 ```
 
-####Here's an example (using the mechanize gem) of getting data into RubyExcel:
+Using the Mechanize gem to get data
+--------
+
 ```ruby
 s = RubyExcel::Workbook.new.load( CSV.parse( Mechanize.new.get('http://example.com/myfile.csv').content ) )
 ```
 
-###Reference a cell's value
+Reference a cell's value
+--------
 
 ```ruby
 s['A7']
@@ -87,10 +105,11 @@ s.column('A')[7]
 s.column('A')['7']
 ```
 
-###Reference a group of cells
+Reference a group of cells
+--------
 
 ```ruby
-s['A1:B3'] #=> Value
+s['A1:B3'] #=> Array
 s.range( 'A1:B3' ) #=> Element
 s.range( 'A1', 'B3' ) #=> Element
 s.range( s.cell( 1, 1 ), s.cell( 3, 2 ) ) #=> Element
@@ -99,9 +118,12 @@ s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
 ```
 
-###Detailed Interactions
+Detailed Interactions
+========
 
-####Workbook
+Workbook
+--------
+
 ```ruby
 #Create a workbook
 wb = RubyExcel::Workbook.new
@@ -134,7 +156,9 @@ wb.sort! { |x,y| x.name <=> y.name }
 wb.sort_by! &:name
 ```
 
-####Sheet
+Sheet
+--------
+
 ```ruby
 #Create a sheet
 s = wb.add #Name defaults to 'Sheet' + total number of sheets
@@ -209,6 +233,7 @@ s.insert_columns( 'B', 1 ) #Inserts 2 empty columns before column 2
 s.insert_columns( 2, 1 ) #Inserts 2 empty columns before column 2
 
 #Find the first row which matches a value within a column (selected by header)
+#Note: Can now accept a Column object in place of a header.
 s.match( 'Qty' ) { |value| value == 1 } #=> 2
 s.match( 'Part', &/Type2/ ) #=> 3
 
@@ -217,6 +242,11 @@ s.maxrow #=> 8
 s.rows.count #=> 8
 s.maxcol #=> 5
 s.columns.count #=> 5
+
+#Partition the sheet into two, given a header and a block (like Filter)
+#Note: this keeps the headers intact in both outputs sheets
+type_1_and_3, other = s.partition( 'Part' ) { |value| value =~ /Type[13]/ }
+type_1_and_3, other = s.partition( 'Part', &/Type[13]/ )
 
 #Reverse the data by rows or columns (ignores headers)
 s.reverse_rows!
@@ -228,17 +258,26 @@ s.sort_by! { |r| r['A'] }
 
 #Sum all elements in a column by criteria in another column (selected by header)
 #Parameters: Header to pass to the block, Header to sum, Block.
+#Note: Now also accepts Column objects in place of headers.
 s.sumif( 'Part', 'Cost' ) { |part| part == 'Type1' } #=> 169.15
 s.sumif( 'Part', 'Cost', &/Type1/ ) #=> 169.15
 
-#Remove all rows with duplicate values in the given column (selected by header)
+#Convert the data into various formats:
+s.to_a #=> 2D Array
+s.to_excel #=> WIN32OLE Excel Workbook (Contains only the current sheet)
+s.to_html  #=> String (HTML table)
+s.to_s #=> String (TSV)
+
+#Remove all rows with duplicate values in the given column (selected by header or Column object)
 s.uniq! 'Part'
 
-#Find a value in one column by searching another one (selected by headers)
+#Find a value in one column by searching another one (selected by headers or Column objects)
 s.vlookup( 'Part', 'Ref1', &/Type4/ ) #=> "XT3"
 ```
 
-####Row / Column
+Row / Column (Section)
+--------
+
 ```ruby
 #Reference a Row or Column
 row = s.row(2)
@@ -274,23 +313,29 @@ row.each { |val| puts val }
 col.each { |val| puts val }
 
 #Loop through all values without including headers
-row.each_without_headers { |val| puts val }
-row.each_wh { |val| puts val }
+col.each_without_headers { |val| puts val }
+col.each_wh { |val| puts val }
 
 #Loop through each cell
 row.each_cell { |ce| puts "#{ ce.address }: #{ ce.value }" }
 col.each_cell { |ce| puts "#{ ce.address }: #{ ce.value }" }
 
+#Loop through each cell without including headers
+col.each_cell_without_headers { |ce| puts "#{ ce.address }: #{ ce.value }" }
+col.each_cell_wh { |ce| puts "#{ ce.address }: #{ ce.value }" }
+
 #Overwrite each value based on its current value
 row.map! { |val| val.to_s + 'a' }
 col.map! { |val| val.to_s + 'a' }
 
-#Get the value of a column in the current row from its header
+#Get the value of a cell in the current row by its header
 row.value_by_header( 'Part' ) #=> 'Type1'
 row.val( 'Part' ) #=> 'Type1'
 ```
 
-####Cell / Range (Elements)
+Cell / Range (Element)
+--------
+
 ```ruby
 #Reference a Cell or Range
 cell = s.cell( 2, 2 )
@@ -321,7 +366,9 @@ range.each_cell { |ce| puts "#{ ce.address }: #{ ce.value }" }
 
 ```
 
-####Address Tools (Included in Sheet, Section, and Element)
+Address Tools (Included in Sheet, Section, and Element)
+--------
+
 ```ruby
 #Get the column index from an address string
 s.address_to_col_index( 'A2' ) #=> 1
@@ -353,7 +400,9 @@ s.offset( 'A2', -1, 0 ) #=> "A1"
 
 ```
 
-###Extra Stuff
+Importing a Hash
+--------
+
 ```ruby
 #Import a nested Hash (useful if you're summarising data before handing it to RubyExcel)
 
@@ -403,8 +452,11 @@ pp s.to_a
  
 ```
 
-####Excel Tools for output convenience ( requires win32ole and Excel 2007 or later )
+Excel Tools ( requires win32ole and Excel )
+--------
+
 Make sure all your data types are compatible with Excel first!
+
 ```ruby
 #Sample RubyExcel::Workbook to work with
 rubywb = RubyExcel.sample_sheet.parent
@@ -454,9 +506,11 @@ s.to_excel
 
 ```
 
-###Comparison of operations with and without RubyExcel gem
+Comparison of operations with and without RubyExcel gem
+--------
 
-####Without RubyExcel (one way to to it):
+Without RubyExcel (one way to to it):
+
 ```ruby
 #Filter to only 'Part' of 'Type1' and 'Type3' while keeping the header row
 idx = data[0].index( 'Part' )
@@ -485,7 +539,8 @@ sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data[0].length ) ).v
 wb.saveas( Dir.pwd.gsub('/','\\') + '\\Output.xlsx' )
 ```
 
-####With RubyExcel:
+With RubyExcel:
+
 ```ruby
 #Filter to only 'Part' of 'Type1' and 'Type3' while keeping the header row
 s.filter!( 'Part', &/Type[13]/ )
@@ -503,13 +558,14 @@ File.write( 'output.txt', s.to_s )
 s.parent.save_excel( 'Output.xlsx' )
 ```
 
-##Todo List:
+Todo List
+=========
 
-- Alter methods which rely on "headers" to be able to take a Column object as an argument (more flexible).
+- Allow argument overloading for methods like filter to avoid repetition and increase efficiency.
 
-- Set up non-bang versions of methods where appropriate
+- Add support for Range notations like "A:A" and "A:B"
 
-- Add an alternative filter which splits the results into two sheets like Array#partition
+- Write TestCases (after learning how to do it)
 
 - Find bugs and extirpate them.
 

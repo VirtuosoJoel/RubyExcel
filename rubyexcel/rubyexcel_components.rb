@@ -5,6 +5,10 @@ require_relative 'section.rb'
 
 module RubyExcel
 
+  #
+  # Example data to use in tests / demos
+  #
+  
   def self.sample_data
     [
       [ 'Part',  'Ref1', 'Ref2', 'Qty', 'Cost' ],
@@ -17,6 +21,10 @@ module RubyExcel
       [ 'Type1', 'QT4',  '123',  2,     104    ]
     ]
   end
+  
+  #
+  # Shortcut to create a Sheet with example data
+  #
   
   def self.sample_sheet
     Workbook.new.load RubyExcel.sample_data
