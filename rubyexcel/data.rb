@@ -34,6 +34,40 @@ require_relative 'address.rb'
       calc_dimensions
     end
     
+    # @overload advanced_filter!( header, comparison_operator, search_criteria, ... )
+    #   Filter on multiple criteria
+    #
+    # @example Filter to 'Part': 'Type1' and 'Type3', with 'Qty' greater than 1
+    #   s.advanced_filter!( 'Part', :=~, /Type[13]/, 'Qty', :>, 1 )
+    #
+    # @example Filter to 'Part': 'Type1', with 'Ref1' containing 'X'
+    #   s.advanced_filter!( 'Part', :==, 'Type1', 'Ref1', :include?, 'X' )
+    #
+    #   @param [String] header a header to search under
+    #   @param [Symbol] comparison_operator the operator to compare with
+    #   @param [Object] search_criteria the value to filter by
+    #   @raise [ArgumentError] 'Number of arguments must be a multiple of 3'
+    #   @raise [ArgumentError] 'Operator must be a symbol'
+    #
+    
+    def advanced_filter!( *args )
+      hrows = sheet.header_rows
+      args.length % 3 == 0 or fail ArgumentError, 'Number of arguments must be a multiple of 3'
+      1.step( args.length - 2, 3 ) { |i| args[i].is_a?( Symbol ) or fail ArgumentError, 'Operator must be a symbol: ' + args[i].to_s }
+      0.step( args.length - 3, 3 ) { |i| index_by_header( args[i] ) }
+      
+      @data = @data.select.with_index do |row, i|
+        if hrows > i
+          true
+        else
+          args.each_slice(3).map do |h, op, crit|
+            row[ index_by_header( h ) - 1 ].send( op, crit )
+          end.all?
+        end
+      end
+      
+    end
+    
     #
     # Returns a copy of the data
     #
@@ -185,12 +219,11 @@ require_relative 'address.rb'
     # @return [self]
     #
 
-    def filter!( header )
+    def filter( header )
       hrows = sheet.header_rows
       idx = index_by_header( header )
       @data = @data.select.with_index { |row, i| hrows > i || yield( row[ idx -1 ] ) }
       calc_dimensions
-      self
     end
   
     #

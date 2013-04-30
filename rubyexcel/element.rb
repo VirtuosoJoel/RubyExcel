@@ -32,7 +32,7 @@ module RubyExcel
     #
     
     def initialize( sheet, addr )
-      fail ArgumentError, "Invalid range: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}\d+\z/
+      fail ArgumentError, "Invalid range: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}:[A-Z]{1,3}\z|\A\d+:\d+\z/
       @sheet = sheet
       @data = sheet.data
       @address = addr
@@ -45,7 +45,7 @@ module RubyExcel
     #
   
     def delete
-      data.delete( self )
+      data.delete( self ); self
     end
     
     #

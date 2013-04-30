@@ -75,9 +75,33 @@ module RubyExcel
 
     def expand( address )
       return [[address]] unless address.include? ':'
-      address.upcase.match( /([A-Z]+)(\d+):([A-Z]+)(\d+)/i )
-      start_col, end_col, start_row, end_row = [ $1, $3 ].sort + [ $2.to_i, $4.to_i ].sort
+      
+      #Extract the relevant boundaries
+      case address
+      
+      # Row
+      when /\A(\d+):(\d+)\z/
+      
+        start_col, end_col, start_row, end_row = [ 'A', col_letter( sheet.maxcol ) ] + [ $1.to_i, $2.to_i ].sort
+        
+      # Column
+      when /\A([A-Z]+):([A-Z]+)\z/
+      
+        start_col, end_col, start_row, end_row = [ $1, $2 ].sort + [ 1, sheet.maxrow ]
+        
+      # Range
+      when /([A-Z]+)(\d+):([A-Z]+)(\d+)/
+      
+        start_col, end_col, start_row, end_row = [ $1, $3 ].sort + [ $2.to_i, $4.to_i ].sort
+        
+      # Invalid
+      else
+        fail ArgumentError, 'Invalid address: ' + address
+      end
+      
+      # Return the array of addresses
       ( start_row..end_row ).map { |r| ( start_col..end_col ).map { |c| c + r.to_s } } 
+      
     end
     
     #

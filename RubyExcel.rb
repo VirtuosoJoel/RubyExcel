@@ -300,6 +300,32 @@ module RubyExcel
       self
     end
     
+    # {Sheet#advanced_filter!}
+    
+    def advanced_filter( *args )
+      dup.advanced_filter!( *args )
+    end
+
+    # @overload advanced_filter!( header, comparison_operator, search_criteria, ... )
+    #   Filter on multiple criteria
+    #
+    # @example Filter to 'Part': 'Type1' and 'Type3', with Qty greater than 1
+    #   s.advanced_filter!( 'Part', :=~, /Type[13]/, 'Qty', :>, 1 )
+    #
+    # @example Filter to 'Part': 'Type1', with 'Ref2' containing 'X'
+    #   s.advanced_filter!( 'Part', :==, 'Type1', 'Ref2', :include?, 'X' )
+    #
+    #   @param [String] header a header to search under
+    #   @param [Symbol] comparison_operator the operator to compare with
+    #   @param [Object] search_criteria the value to filter by
+    #   @raise [ArgumentError] 'Number of arguments must be a multiple of 3'
+    #   @raise [ArgumentError] 'Operator must be a symbol'
+    #
+    
+    def advanced_filter!( *args )
+      data.advanced_filter!( *args ); self
+    end
+    
     #
     # Access an Element by indices.
     #
@@ -432,6 +458,7 @@ module RubyExcel
     # @yield [Object] the value at the intersection of Column and Row
     # @return [self]
     #
+    
     def filter!( header, &block )
       data.filter!( header, &block ); self
     end
@@ -534,7 +561,7 @@ module RubyExcel
     
     def method_missing(m, *args, &block)
       method_name = m.to_s.upcase.strip
-      if method_name =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+=?\z|\A[A-Z]{1,3}\d+=?\z/
+      if method_name =~ /\A[A-Z]{1,3}\d+=?\z/
         if method_name[-1] == '='
           range( method_name.chop ).value = ( args.length == 1 ? args.first : args )
         else
@@ -546,11 +573,11 @@ module RubyExcel
     end
     
     #
-    # Allow for method_missing method calls
+    # Allow for certain method_missing calls
     #
     
     def respond_to?(meth)
-      if meth.to_s.upcase.strip =~ /\A[A-Z]+\d+:[A-Z]+\d+\z|\A[A-Z]+\d+=?\z/
+      if meth.to_s.upcase.strip =~ /\A[A-Z]{1,3}\d+=?\z/
         true
       else
         super
@@ -578,6 +605,8 @@ module RubyExcel
     # @note These are all valid arguments:
     #   ('A1') 
     #   ('A1:B2') 
+    #   ('A:A')
+    #   ('1:1')
     #   ('A1', 'B2') 
     #   (cell1) 
     #   (cell1, cell2) 
@@ -592,7 +621,7 @@ module RubyExcel
     #
     
     def reverse_columns!
-      data.reverse_columns!
+      data.reverse_columns!; self
     end
     
     #
@@ -600,7 +629,7 @@ module RubyExcel
     #
     
     def reverse_rows!
-      data.reverse_rows!
+      data.reverse_rows!; self
     end
     
     #

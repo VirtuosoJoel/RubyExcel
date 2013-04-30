@@ -1,9 +1,9 @@
 RubyExcel
 =========
 
-Designed for Windows with MS Excel
+Designed for Ruby on Windows with MS Excel
 
-**Still under construction! Bugs are inevitable.**
+Please feel free to log any bugs you find at [GitHub](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker")
 
 Introduction
 ------------
@@ -112,6 +112,8 @@ Reference a group of cells
 ```ruby
 s['A1:B3'] #=> Array
 s.range( 'A1:B3' ) #=> Element
+s.range( 'A:A' ) #=> Element (Column)
+s.range( '1:2' ) #=> Element (Rows)
 s.range( 'A1', 'B3' ) #=> Element
 s.range( s.cell( 1, 1 ), s.cell( 3, 2 ) ) #=> Element
 s.row( 1 ) #=> Row
@@ -119,8 +121,10 @@ s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
 ```
 
-Detailed Interactions
+Some Examples
 ========
+
+This list may be removed in favour of the gem's documentation on rubydoc.
 
 Workbook
 --------
@@ -561,10 +565,6 @@ s.parent.save_excel( 'Output.xlsx' )
 
 Todo List
 =========
-
-- Allow argument overloading for methods like filter to avoid repetition and increase efficiency.
-
-- Add support for Range notations like "A:A" and "A:B"
 
 - Write TestCases (after learning how to do it)
 

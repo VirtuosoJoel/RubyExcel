@@ -55,7 +55,7 @@ module RubyExcel
     #
   
     def delete
-      data.delete( self )
+      data.delete( self ); self
     end
   
     #
