@@ -47,7 +47,7 @@ module RubyExcel
       case other
       when Workbook ; other.each { |sht| sht.workbook = self; @sheets << sht }
       when Sheet    ; @sheets << other; other.workbook = self
-      when Array    ; @sheets << add.load( other )
+      when Array    ; load( other )
       else          ; fail TypeError, "Unsupported Type: #{ other.class }"
       end
       self
@@ -312,14 +312,14 @@ module RubyExcel
     # @example Filter to 'Part': 'Type1' and 'Type3', with Qty greater than 1
     #   s.advanced_filter!( 'Part', :=~, /Type[13]/, 'Qty', :>, 1 )
     #
-    # @example Filter to 'Part': 'Type1', with 'Ref2' containing 'X'
-    #   s.advanced_filter!( 'Part', :==, 'Type1', 'Ref2', :include?, 'X' )
+    # @example Filter to 'Part': 'Type1', with 'Ref1' containing 'X'
+    #   s.advanced_filter!( 'Part', :==, 'Type1', 'Ref1', :include?, 'X' )
     #
-    #   @param [String] header a header to search under
-    #   @param [Symbol] comparison_operator the operator to compare with
-    #   @param [Object] search_criteria the value to filter by
-    #   @raise [ArgumentError] 'Number of arguments must be a multiple of 3'
-    #   @raise [ArgumentError] 'Operator must be a symbol'
+    # @param [String] header a header to search under
+    # @param [Symbol] comparison_operator the operator to compare with
+    # @param [Object] search_criteria the value to filter by
+    # @raise [ArgumentError] 'Number of arguments must be a multiple of 3'
+    # @raise [ArgumentError] 'Operator must be a symbol'
     #
     
     def advanced_filter!( *args )

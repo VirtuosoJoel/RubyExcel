@@ -3,7 +3,7 @@ RubyExcel
 
 Designed for Ruby on Windows with MS Excel
 
-Please feel free to log any bugs you find at [GitHub](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker")
+Please feel free to log any bugs you find [here](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker").
 
 Introduction
 ------------
@@ -21,8 +21,8 @@ Key design features taken from Excel:
 
 Typical usage:
 
-1. Extract a HTML Table or CSV File into 2D Array ( normally with Nokogiri / Mechanize )
-2. Organise and interpret data with RubyExcel
+1. Extract a HTML Table or CSV File into 2D Array ( normally with Nokogiri / Mechanize ).
+2. Organise and interpret data with RubyExcel.
 3. Output results into a file.
 
 About
@@ -566,7 +566,7 @@ s.parent.save_excel( 'Output.xlsx' )
 Todo List
 =========
 
-- Write TestCases (after learning how to do it)
+- Write TestCases for most methods (Hopefully that'll stop me releasing broken gem versions)
 
 - Find bugs and extirpate them.
 

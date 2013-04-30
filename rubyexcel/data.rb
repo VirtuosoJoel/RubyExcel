@@ -65,7 +65,7 @@ require_relative 'address.rb'
           end.all?
         end
       end
-      
+      calc_dimensions
     end
     
     #
@@ -219,7 +219,7 @@ require_relative 'address.rb'
     # @return [self]
     #
 
-    def filter( header )
+    def filter!( header )
       hrows = sheet.header_rows
       idx = index_by_header( header )
       @data = @data.select.with_index { |row, i| hrows > i || yield( row[ idx -1 ] ) }

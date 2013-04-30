@@ -20,6 +20,30 @@ module RubyExcel
       [ 'Type2', 'QY2',  '213',  1,     99.99  ], 
       [ 'Type1', 'QT4',  '123',  2,     104    ]
     ]
+    
+  end
+  
+  def self.sample_hash
+  
+    {
+      Part1: {
+        Type1: {
+          SubType1: 1, SubType2: 2, SubType3: 3
+        },
+        Type2: {
+          SubType1: 4, SubType2: 5, SubType3: 6
+        }
+      },
+      Part2: {
+        Type1: {
+          SubType1: 1, SubType2: 2, SubType3: 3
+        },
+        Type2: {
+          SubType1: 4, SubType2: 5, SubType3: 6
+        }
+      }
+    }
+  
   end
   
   #
