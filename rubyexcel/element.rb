@@ -65,15 +65,35 @@ module RubyExcel
     #
   
     def value=( val )
+    
+      #Range
       if address.include? ':'
+      
+        addresses = expand( address )
+        
+        # 2D Array of Values
         if multi_array?( val )
-          expand( address ).each_with_index { |row,idx| row.each_with_index { |el,i| data[ el ] = val[idx][i] } }
+        
+          #Check the dimensions
+          val_rows, val_cols, range_rows, range_cols = val.length, val.max_by(&:length).length, addresses.length, addresses.max_by(&:length).length
+          val_rows == range_rows && val_cols == range_cols or fail ArgumentError, "Dimension mismatch! Value rows, columns: #{ val_rows }, #{ val_cols }. Range rows, columns: #{ range_rows }, #{ range_cols }"
+          
+          #Write the values in order
+          addresses.each_with_index { |row,idx| row.each_with_index { |el,i| data[ el ] = val[idx][i] } }
+          
+        # Single Value
         else
-          expand( address ).each { |ar| ar.each { |addr| data[ addr ] = val } }
+        
+          #Write the same value to every cell in the Range
+          addresses.each { |ar| ar.each { |addr| data[ addr ] = val } }
+          
         end
+      
+      #Cell
       else
         data[ address ] = val
       end
+      
       self
     end
     

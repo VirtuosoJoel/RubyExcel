@@ -28,16 +28,16 @@ module RubyExcel
     
     #
     # Append a value to the Section. 
-    #   This only adds an extra cell if it is the first Row / Column.
-    #   This prevents a loop through Rows or Columns from extending diagonally away from the main data.
     #
     # @param [Object] value the object to append
+    # @note This only adds an extra cell if it is the first Row / Column.
+    #       This prevents a loop through Rows or Columns from extending diagonally away from the main data.
     #
   
     def <<( value )
       case self
-      when Row ; lastone = ( col_index( idx ) == 1 ? data.cols + 1 : data.cols )
-      else     ; lastone = ( col_index( idx ) == 1 ? data.rows + 1 : data.rows )
+      when Row ; lastone = ( idx == 1 ? data.cols + 1 : data.cols )
+      else     ; lastone = ( idx == 'A' ? data.rows + 1 : data.rows )
       end
       data[ translate_address( lastone ) ] = value
     end
@@ -57,6 +57,44 @@ module RubyExcel
     def delete
       data.delete( self ); self
     end
+  
+   #
+    # Yields each value
+    #
+
+    def each
+      return to_enum(:each) unless block_given?
+      each_address { |addr| yield data[ addr ] }
+    end
+    
+    #
+    # Yields each value, skipping headers
+    #
+    
+    def each_without_headers
+      return to_enum( :each_without_headers ) unless block_given?
+      each_address_without_headers { |addr| yield data[ addr ] }
+    end
+    alias each_wh each_without_headers
+    
+    #
+    # Yields each cell
+    #
+    
+    def each_cell
+      return to_enum( :each_cell ) unless block_given?
+      each_address { |addr| yield Element.new( sheet, addr ) }
+    end
+    
+    #
+    # Yields each cell, skipping headers
+    #
+    
+    def each_cell_without_headers
+      return to_enum( :each_cell_without_headers ) unless block_given?
+      each_address_without_headers { |addr| yield Element.new( sheet, addr ) }
+    end
+    alias each_cell_wh each_cell_without_headers
   
     #
     # Check whether the data in self is empty
@@ -84,6 +122,15 @@ module RubyExcel
   
     def inspect
       "#{ self.class }:0x#{ '%x' % (object_id << 1) }: #{ idx }"
+    end
+  
+    #
+    # Replaces each value with the result of the block
+    #
+    
+    def map!
+      return to_enum( :map! ) unless block_given?
+      each_address { |addr| data[addr] = ( yield data[addr] ) }
     end
   
     #
@@ -128,53 +175,6 @@ module RubyExcel
     end
     alias []= write
 
-    #
-    # Yields each value
-    #
-
-    def each
-      return to_enum(:each) unless block_given?
-      each_address { |addr| yield data[ addr ] }
-    end
-    
-    #
-    # Yields each value, skipping headers
-    #
-    
-    def each_without_headers
-      return to_enum( :each_without_headers ) unless block_given?
-      each_address_without_headers { |addr| yield data[ addr ] }
-    end
-    alias each_wh each_without_headers
-    
-    #
-    # Yields each cell
-    #
-    
-    def each_cell
-      return to_enum( :each_cell ) unless block_given?
-      each_address { |addr| yield Element.new( sheet, addr ) }
-    end
-    
-    #
-    # Yields each cell, skipping headers
-    #
-    
-    def each_cell_without_headers
-      return to_enum( :each_cell_without_headers ) unless block_given?
-      each_address { |addr| yield Element.new( sheet, addr ) }
-    end
-    alias each_cell_wh each_cell_without_headers
-    
-    #
-    # Replaces each value with the result of the block
-    #
-    
-    def map!
-      return to_enum( :map! ) unless block_given?
-      each_address { |addr| data[addr] = ( yield data[addr] ) }
-    end
-
     private
     
     def translate_address( addr )
@@ -192,11 +192,12 @@ module RubyExcel
 
   #
   # A Row in the Sheet
+  # @attr_reader [Fixnum] idx the Row index
+  # @attr_reader [Fixnum] length the Row length
   #
   
   class Row < Section
   
-    # The Row index
     attr_reader :idx
     
     #
@@ -238,6 +239,10 @@ module RubyExcel
       fail ArgumentError, 'Invalid header: ' + header.to_s
     end
     
+    def length
+      data.cols
+    end
+    
     #
     # Find a value in this Row by its header
     #
@@ -255,20 +260,19 @@ module RubyExcel
     def each_address
       ( 'A'..col_letter( data.cols ) ).each { |col_id| yield "#{col_id}#{idx}" }
     end
-    
-    def each_address_without_headers
-      ( 'A'..col_letter( data.cols ) ).each { |col_id| yield "#{col_id}#{idx}" }
-    end
+    alias each_address_without_headers each_address
 
   end
 
   #
   # A Column in the Sheet
   #
+  # @attr_reader [String] idx the Column index
+  # @attr_reader [Fixnum] length the Column length
+  #
   
   class Column < Section
   
-    # The Row index
     attr_reader :idx
     
     #
@@ -281,6 +285,10 @@ module RubyExcel
     def initialize( sheet, idx )
       @idx = idx
       super( sheet )
+    end
+    
+    def length
+      data.rows
     end
 
     private

@@ -5,6 +5,8 @@ require_relative 'address.rb'
   #
   # The class which holds a Sheet's data
   #
+  # @note This class is exposed to the API purely for debugging.
+  #
 
   class Data
     include Address
@@ -71,24 +73,15 @@ require_relative 'address.rb'
     #
     # Returns a copy of the data
     #
+    # @return [Array<Array>]
+    #
     
     def all
       @data.dup
     end
-    
+ 
     #
-    # Appends a multidimensional Array to the end of the data
-    #
-    # @param [Array<Array>] multi_array the multidimensional Array to add to the data
-    #
-    
-    def append( multi_array )
-      @data << multi_array
-      calc_dimensions
-    end
-    
-    #
-    # Finds a Column reference bu a header
+    # Finds a Column reference by a header
     #
     # @param [String] header the header to search for
     # @return [String] the Column reference
@@ -162,7 +155,6 @@ require_relative 'address.rb'
     
     def delete_column( ref )
       delete( Column.new( sheet, ref ) )
-      calc_dimensions
     end
   
     #
@@ -171,7 +163,6 @@ require_relative 'address.rb'
   
     def delete_row( ref )
       delete( Row.new( sheet, ref ) )
-      calc_dimensions
     end
     
     #
@@ -180,7 +171,6 @@ require_relative 'address.rb'
     
     def delete_range( ref )
       delete( Element.new( sheet, ref ) )
-      calc_dimensions
     end
     
     #
@@ -194,7 +184,7 @@ require_relative 'address.rb'
     end
     
     #
-    # Check whether the data is empty
+    # Check whether the data (without headers) is empty
     #
     # @return [Boolean]
     #
@@ -208,6 +198,7 @@ require_relative 'address.rb'
     #
     
     def each
+      return to_enum( :each ) unless block_given?
       @data.each { |ar| yield ar }
     end
 
@@ -230,6 +221,7 @@ require_relative 'address.rb'
     # Select and re-order Columns by a list of headers
     #
     # @param [Array<String>] headers the ordered list of headers to keep
+    # @note This method can accept either a list of arguments or an Array
     # @note Invalid headers will be skipped
     #
   
@@ -258,7 +250,8 @@ require_relative 'address.rb'
     #
     
     def index_by_header( header )
-      col_index( sheet.header_rows > 0 ? colref_by_header( header ) : header )
+      sheet.header_rows > 0 or fail NoMethodError, 'No header rows present'
+      col_index(  colref_by_header( header ) )
     end
     
     #
@@ -365,7 +358,7 @@ require_relative 'address.rb'
     #
     
     def sort_by!( &block )
-      @data = skip_headers { |d| d.sort_by( &block ) }
+      @data = skip_headers { |d| d.sort_by( &block ) }; self
     end
     
     #
@@ -391,6 +384,7 @@ require_relative 'address.rb'
       ( row_idx - rows ).times { @data << [] }
       @data[ row_idx-1 ][ col_idx-1 ] = val
       calc_dimensions
+      val
     end
     alias []= write
     

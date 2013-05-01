@@ -293,7 +293,7 @@ module RubyExcel
     def <<( other )
       case other
       when Array ; load( data.all + other, header_rows )
-      when Hash  ; load( data.all + _convert_hash( other ) )
+      when Hash  ; load( data.all + _convert_hash( other ), header_rows )
       when Sheet ; load( data.all + other.data.no_headers, header_rows )
       else       ; fail ArgumentError, "Unsupported class: #{ other.class }"
       end
@@ -308,10 +308,8 @@ module RubyExcel
 
     # @overload advanced_filter!( header, comparison_operator, search_criteria, ... )
     #   Filter on multiple criteria
-    #
     # @example Filter to 'Part': 'Type1' and 'Type3', with Qty greater than 1
     #   s.advanced_filter!( 'Part', :=~, /Type[13]/, 'Qty', :>, 1 )
-    #
     # @example Filter to 'Part': 'Type1', with 'Ref1' containing 'X'
     #   s.advanced_filter!( 'Part', :==, 'Type1', 'Ref1', :include?, 'X' )
     #
@@ -474,6 +472,7 @@ module RubyExcel
     # Select and re-order Columns by a list of headers
     #
     # @param [Array<String>] headers the ordered list of headers to keep
+    # @note This method can accept either a list of arguments or an Array
     # @note Invalid headers will be skipped
     #
 

@@ -3,12 +3,18 @@ RubyExcel
 
 Designed for Ruby on Windows with MS Excel
 
-Please feel free to log any bugs you find [here](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker").
-
 Introduction
 ------------
 
 A Data-analysis tool for Ruby, with an Excel-style API.
+
+You can find the gem [here](https://rubygems.org/gems/rubyexcel "Rubygems").
+
+Main Documentation is [here](http://rubydoc.info/gems/rubyexcel "Rubydoc")
+
+For any requests, comments, etc. I keep an eye on [This forum](http://www.ruby-forum.com/forum/ruby "Ruby Mailing List"). If you have "RubyExcel" in the title I should see it.
+
+Please feel free to log any bugs you find [here](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker").
 
 Details
 -----
@@ -36,7 +42,7 @@ As this works directly on the data, processing is faster than using Excel itself
 This was written out of the frustration of editing tabular data using Ruby's multidimensional arrays,
 without affecting headers and while maintaining code readability.
 Its API is designed to simplify moving code across from VBA into Ruby format when processing spreadsheet data.
-The combination of Ruby, WIN32OLE Excel, and extracting HTML table data is probably quite rare; but I thought I'd share what I came up with.
+The combination of Ruby, WIN32OLE Excel, and analysing table data is probably quite rare; but I thought I'd share what I came up with.
 
 Examples
 ========

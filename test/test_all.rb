@@ -1,0 +1,5 @@
+require_relative 'tc_rubyexcel'
+require_relative 'rubyexcel/tc_address'
+require_relative 'rubyexcel/tc_data'
+require_relative 'rubyexcel/tc_element'
+require_relative 'rubyexcel/tc_section'
