@@ -93,10 +93,9 @@ wb = s.parent
 ```
 
 Using the Mechanize gem to get data
+--------
 
 This example is for context, there are many potential data sources
-
---------
 
 ```ruby
 s = RubyExcel::Workbook.new.load( CSV.parse( Mechanize.new.get('http://example.com/myfile.csv').content ) )
@@ -146,7 +145,7 @@ x = 1
 #Iterate through the rest of the rows while appending data
 s.rows(2) { |row| row << x; x+=1 }
 
-
+#Will add more examples here later.
 
 ```
 
