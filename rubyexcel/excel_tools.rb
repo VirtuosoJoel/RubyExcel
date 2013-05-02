@@ -40,7 +40,7 @@ module RubyExcel
     def dump_to_sheet( data, sheet=nil )
       data.is_a?( Array ) or fail ArgumentError, "Invalid data type: #{ data.class }"
       sheet ||= get_workbook.sheets(1)
-      sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data[0].length ) ).value = data
+      sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data.max_by(&:length).length ) ).value = data
       sheet
     end
     
@@ -125,7 +125,7 @@ module RubyExcel
       self.each do |s|
         sht = ( first_time ? wb.sheets(1) : wb.sheets.add( { 'after' => wb.sheets( wb.sheets.count ) } ) ); first_time = false
         sht.name = s.name
-        make_sheet_pretty( dump_to_sheet( s.data.all, sht ) )
+        make_sheet_pretty( dump_to_sheet( s.to_a, sht ) )
       end
       wb.sheets(1).select
       wb.application.visible = true unless invisible

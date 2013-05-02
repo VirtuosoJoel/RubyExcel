@@ -76,7 +76,7 @@ module RubyExcel
         
           #Check the dimensions
           val_rows, val_cols, range_rows, range_cols = val.length, val.max_by(&:length).length, addresses.length, addresses.max_by(&:length).length
-          val_rows == range_rows && val_cols == range_cols or fail ArgumentError, "Dimension mismatch! Value rows, columns: #{ val_rows }, #{ val_cols }. Range rows, columns: #{ range_rows }, #{ range_cols }"
+          val_rows == range_rows && val_cols == range_cols or fail ArgumentError, "Dimension mismatch! Value - rows: #{val_rows}, columns: #{ val_cols }. Range - rows: #{ range_rows }, columns: #{ range_cols }"
           
           #Write the values in order
           addresses.each_with_index { |row,idx| row.each_with_index { |el,i| data[ el ] = val[idx][i] } }

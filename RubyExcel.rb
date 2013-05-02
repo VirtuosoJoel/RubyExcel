@@ -699,6 +699,17 @@ module RubyExcel
     end
     
     #
+    # Summarise the values of a Column into a Hash
+    #
+    # @param [String] header the header of the Column to summarise
+    # @return [Hash]
+    #
+    
+    def summarise( header )
+      ch( header ).summarise
+    end
+    
+    #
     # The Sheet as a 2D Array
     #
     

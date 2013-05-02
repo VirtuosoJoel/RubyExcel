@@ -417,8 +417,8 @@ Importing a Hash
 ```ruby
 #Import a nested Hash (useful if you're summarising data before handing it to RubyExcel)
 
-#Here's an example Hash
-h = {
+#Here's an example Hash (built into the gem as RubyExcel.sample_hash)
+ h = {
       Part1: {
         Type1: {
           SubType1: 1, SubType2: 2, SubType3: 3

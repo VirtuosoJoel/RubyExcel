@@ -23,6 +23,10 @@ module RubyExcel
     
   end
   
+  #
+  # Example hash to demonstrate imports
+  #
+  
   def self.sample_hash
   
     {
