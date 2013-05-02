@@ -190,7 +190,7 @@ require_relative 'address.rb'
     #
     
     def empty?
-      no_headers.empty?
+      no_headers.empty? rescue true
     end
 
     #
@@ -383,7 +383,7 @@ require_relative 'address.rb'
       row_idx, col_idx = address_to_indices( addr )
       ( row_idx - rows ).times { @data << [] }
       @data[ row_idx-1 ][ col_idx-1 ] = val
-      calc_dimensions
+      calc_dimensions if row_idx > rows || col_idx > cols
       val
     end
     alias []= write

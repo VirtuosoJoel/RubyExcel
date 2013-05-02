@@ -262,6 +262,7 @@ module RubyExcel
     #
     # @param [Array<Array>, Hash<Hash>, RubyExcel::Sheet] other the data to add
     # @return [RubyExcel::Sheet] returns a new Sheet
+    # @note When adding another Sheet it won't import the headers unless this Sheet is empty.
     #
  
     def +( other )
@@ -288,14 +289,16 @@ module RubyExcel
     #
     # @param [Array<Array>, Hash<Hash>, RubyExcel::Sheet] other the data to append
     # @return [self]
+    # @note When adding another Sheet it won't import the headers unless this Sheet is empty.
+    # @note Anything other than an an Array, Hash, or Sheet will be appended to the first row
     #
     
     def <<( other )
       case other
       when Array ; load( data.all + other, header_rows )
       when Hash  ; load( data.all + _convert_hash( other ), header_rows )
-      when Sheet ; load( data.all + other.data.no_headers, header_rows )
-      else       ; fail ArgumentError, "Unsupported class: #{ other.class }"
+      when Sheet ; empty? ? load( other.to_a, other.header_rows ) : load( data.all + other.data.no_headers, header_rows )
+      else       ; row(1) << other
       end
       self
     end

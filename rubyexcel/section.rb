@@ -125,6 +125,16 @@ module RubyExcel
     end
   
     #
+    # Return the last cell
+    #
+    # @return [RubyExcel::Element]
+    #
+  
+    def last_cell
+      Element.new( sheet, each_address.to_a.last )
+    end
+  
+    #
     # Replaces each value with the result of the block
     #
     
@@ -258,6 +268,7 @@ module RubyExcel
     private
 
     def each_address
+      return to_enum( :each_address ) unless block_given?
       ( 'A'..col_letter( data.cols ) ).each { |col_id| yield "#{col_id}#{idx}" }
     end
     alias each_address_without_headers each_address
@@ -294,10 +305,12 @@ module RubyExcel
     private
     
     def each_address
+      return to_enum( :each_address ) unless block_given?
       ( 1..data.rows ).each { |row_id| yield idx + row_id.to_s }
     end
 
     def each_address_without_headers
+      return to_enum( :each_address_without_headers ) unless block_given?
       ( sheet.header_rows+1 ).upto( data.rows ) { |row_id| yield idx + row_id.to_s }
     end
 

@@ -10,9 +10,10 @@ A Data-analysis tool for Ruby, with an Excel-style API.
 
 You can find the gem [here](https://rubygems.org/gems/rubyexcel "Rubygems").
 
-Main Documentation is [here](http://rubydoc.info/gems/rubyexcel "Rubydoc")
+Main documentation is [here](http://rubydoc.info/gems/rubyexcel "Rubydoc")
 
-For any requests, comments, etc. I keep an eye on [This forum](http://www.ruby-forum.com/forum/ruby "Ruby Mailing List"). If you have "RubyExcel" in the title I should see it.
+For any requests, comments, etc. I keep an eye on [this forum](http://www.ruby-forum.com/forum/ruby "Ruby Mailing List").
+If you put "RubyExcel" in the subject title I should see it.
 
 Please feel free to log any bugs you find [here](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker").
 
@@ -92,6 +93,9 @@ wb = s.parent
 ```
 
 Using the Mechanize gem to get data
+
+This example is for context, there are many potential data sources
+
 --------
 
 ```ruby
@@ -131,6 +135,20 @@ Some Examples
 ========
 
 This list may be removed in favour of the gem's documentation on rubydoc.
+
+Common Operations
+--------
+
+```ruby
+#Append a Column by adding a header
+s << 'Numbers'
+x = 1
+#Iterate through the rest of the rows while appending data
+s.rows(2) { |row| row << x; x+=1 }
+
+
+
+```
 
 Workbook
 --------
@@ -272,6 +290,10 @@ s.sort_by! { |r| r['A'] }
 #Note: Now also accepts Column objects in place of headers.
 s.sumif( 'Part', 'Cost' ) { |part| part == 'Type1' } #=> 169.15
 s.sumif( 'Part', 'Cost', &/Type1/ ) #=> 169.15
+
+#Summarise a column by header into a Hash.
+s.summarise( 'Part' )
+#=> {"Type1"=>3, "Type2"=>2, "Type3"=>1, "Type4"=>1}
 
 #Convert the data into various formats:
 s.to_a #=> 2D Array
