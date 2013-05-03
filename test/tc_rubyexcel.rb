@@ -249,6 +249,12 @@ class TestSheet < Test::Unit::TestCase
   
   end  
   
+  def test_split
+  
+    assert_equal( 4, @s.split('Part').sheets.count )
+    
+  end
+  
   def test_sumif
   
     assert( @s.sumif( 'Part', 'Cost', &/Type1/ ) == 169.15 )
