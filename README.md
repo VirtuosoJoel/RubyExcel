@@ -133,8 +133,6 @@ s.column( 1 ) #=> Column
 Some Examples
 ========
 
-This list may be removed in favour of the gem's documentation on rubydoc.
-
 Common Operations
 --------
 
@@ -142,8 +140,14 @@ Common Operations
 #Append a Column by adding a header
 s << 'Numbers'
 x = 1
+
 #Iterate through the rest of the rows while appending data
 s.rows(2) { |row| row << x; x+=1 }
+
+#
+
+#Split the data into multiple sheets by part number
+wb = s.split( 'Part' )
 
 #Will add more examples here later.
 
@@ -272,7 +276,7 @@ s.maxcol #=> 5
 s.columns.count #=> 5
 
 #Partition the sheet into two, given a header and a block (like Filter)
-#Note: this keeps the headers intact in both outputs sheets
+#Note: this keeps the headers intact in both output sheets
 type_1_and_3, other = s.partition( 'Part' ) { |value| value =~ /Type[13]/ }
 type_1_and_3, other = s.partition( 'Part', &/Type[13]/ )
 
@@ -283,6 +287,10 @@ s.reverse_columns!
 #Sort the rows by criteria (ignores headers)
 s.sort! { |r1,r2| r1['A'] <=> r2['A'] }
 s.sort_by! { |r| r['A'] }
+
+#Split a Sheet into a Workbook of Sheets by a column (selected by header)
+wb = s.split( 'Part' )
+#=> <Workbook: [Sheet:Type1, Sheet:Type2, Sheet:Type3, Sheet:Type4]>
 
 #Sum all elements in a column by criteria in another column (selected by header)
 #Parameters: Header to pass to the block, Header to sum, Block.

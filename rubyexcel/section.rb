@@ -142,6 +142,15 @@ module RubyExcel
       return to_enum( :map! ) unless block_given?
       each_address { |addr| data[addr] = ( yield data[addr] ) }
     end
+    
+    #
+    # Replaces each value with the result of the block, skipping headers
+    #
+  
+    def map_without_headers!
+      return to_enum( :map_without_headers! ) unless block_given?
+      each_address_without_headers { |addr| data[addr] = ( yield data[addr] ) }
+    end
   
     #
     # Read a value by address

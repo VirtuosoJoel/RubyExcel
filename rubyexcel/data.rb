@@ -35,6 +35,26 @@ require_relative 'address.rb'
       @data = input_data.dup
       calc_dimensions
     end
+
+    #
+    # Append an object to Data
+    #
+    # @param [Object] other the data to append
+    # @return [self]
+    #    
+    
+    def <<( other )
+      case other
+      when Array  ; multi_array?( other ) ? @data += other : @data << other
+      when Hash   ; @data << _convert_hash( other )
+      when Sheet  ; empty? ? @data = other.data.all.dup : @data += other.data.dup.no_headers
+      when Row    ; @data << other.to_a.dup
+      when Column ; @data.map!.with_index { |row, i| row << other[ i+1 ] }
+      else        ; @data[0] << other
+      end
+      calc_dimensions
+      self
+    end
     
     # @overload advanced_filter!( header, comparison_operator, search_criteria, ... )
     #   Filter on multiple criteria
@@ -239,7 +259,8 @@ require_relative 'address.rb'
     #
     
     def headers
-      sheet.header_rows > 0 ? @data[ 0..sheet.header_rows-1 ] : nil
+      return nil if sheet.header_rows.nil? || sheet.header_rows.zero?
+       @data[ 0..sheet.header_rows-1 ]
     end
     
     #
@@ -285,6 +306,7 @@ require_relative 'address.rb'
     #
     
     def no_headers
+      return @data unless sheet.header_rows
       @data[ sheet.header_rows..-1 ]
     end
     
@@ -397,6 +419,14 @@ require_relative 'address.rb'
     def ensure_shape
       calc_dimensions
       @data = @data.map { |ar| ar.length == cols ? ar : ar + Array.new( cols - ar.length, nil) }
+    end
+    
+    def _convert_hash(h)
+      _hash_to_a(h).each_slice(2).map { |a1,a2| a1 << a2.last }
+    end
+    
+    def _hash_to_a(h)
+      h.map { |k,v| v.is_a?(Hash) ? _hash_to_a(v).map { |val| ([ k ] + [ val ]).flatten(1) } : [ k, v ] }.flatten(1)
     end
     
   end

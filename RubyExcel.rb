@@ -285,21 +285,16 @@ module RubyExcel
     end
     
     #
-    # Append data to the Sheet
+    # Append an object to the Sheet
     #
-    # @param [Array<Array>, Hash<Hash>, RubyExcel::Sheet] other the data to append
+    # @param [Object] other the object to append
     # @return [self]
     # @note When adding another Sheet it won't import the headers unless this Sheet is empty.
-    # @note Anything other than an an Array, Hash, or Sheet will be appended to the first row
+    # @note Anything other than an an Array, Hash, Row, Column or Sheet will be appended to the first row
     #
     
     def <<( other )
-      case other
-      when Array ; load( data.all + other, header_rows )
-      when Hash  ; load( data.all + _convert_hash( other ), header_rows )
-      when Sheet ; empty? ? load( other.to_a, other.header_rows ) : load( data.all + other.data.no_headers, header_rows )
-      else       ; row(1) << other
-      end
+      data << other
       self
     end
     
@@ -675,16 +670,37 @@ module RubyExcel
     
     # {Sheet#sort_by!}
     
-    def sort_by( &block )
-      dup.sort_by!( &block )
+    def sort_by( header )
+      dup.sort_by!( header )
     end
     
     #
-    # Sort the data by the block value (avoiding headers)
+    # Sort the data by a column, selected by header
+    #
+    # @param [String] header the header to sort the Sheet by
     #
     
-    def sort_by!( &block )
-      data.sort_by!( &block ); self
+    def sort_by!( header )
+      idx = data.index_by_header( header ) - 1
+      sort_method = lambda { |array| array[idx] }
+      data.sort_by!( &sort_method )
+      self
+    end
+    
+    #
+    # Break the Sheet into a Workbook with multiple Sheets, split by the values under a header.
+    #
+    # @param [String] header the header to split by
+    # @return [RubyExcel::Workbook] a new workbook containing the split Sheets (each with headers)
+    #
+    
+    def split( header )
+      wb = Workbook.new
+      ch( header ).each_wh.to_a.uniq.each { |name| wb.add( name ).load( data.headers ) }
+      rows( header_rows+1 ) do |row|
+        wb.sheets( row.val( header ) ) << row
+      end
+      wb
     end
     
     #
@@ -775,16 +791,6 @@ module RubyExcel
       return_col[ row_id( find_col.find( &block ) ) ] rescue nil
     end
     
-    private
-    
-    def _hash_to_a(h)
-      h.map { |k,v| v.is_a?(Hash) ? _hash_to_a(v).map { |val| ([ k ] + [ val ]).flatten(1) } : [ k, v ] }.flatten(1)
-    end
-
-    def _convert_hash(h)
-      _hash_to_a(h).each_slice(2).map { |a1,a2| a1 << a2.last }
-    end
-
   end # Sheet
   
 end # RubyExcel
