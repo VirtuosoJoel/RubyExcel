@@ -10,7 +10,6 @@ module RubyExcel
 
   class Sheet
     include Address
-    include Enumerable
 
     # The Data underlying the Sheet
     attr_reader :data
@@ -345,15 +344,15 @@ module RubyExcel
     alias maxcolumn maxcol
     
     #
-    # Allow shorthand range references
+    # Allow shorthand range references and non-bang versions of bang methods.
     #
     
     def method_missing(m, *args, &block)
       method_name = m.to_s
       
-      if %w( advanced_filter compact filter get_columns gc reverse_columns reverse_rows sort sort_by uniq unique ).include?( method_name )
+      if method_name[-1] != '!' && respond_to?( method_name + '!' )
       
-        dup.send( "#{ method_name }!".to_sym, *args, &block )
+        dup.send( method_name + '!', *args, &block )
         
       elsif method_name =~ /\A[A-Z]{1,3}\d+=?\z/i
       
@@ -373,14 +372,16 @@ module RubyExcel
     # Allow for certain method_missing calls
     #
     
-    def respond_to?(meth)
-      if meth.to_s.upcase.strip =~ /\A[A-Z]{1,3}\d+=?\z/ ||
-      %w( advanced_filter compact filter get_columns gc reverse_columns reverse_rows sort sort_by uniq unique ).include?( method_name )
-        
+    def respond_to?(m)
+    
+      if m[-1] != '!' && respond_to?( m.to_s + '!' )
+        true
+      elsif m.to_s.upcase.strip =~ /\A[A-Z]{1,3}\d+=?\z/
         true
       else
         super
       end
+      
     end
     
     #
@@ -463,7 +464,6 @@ module RubyExcel
     def sort!( &block )
       data.sort!( &block ); self
     end
-    undef :sort
     
     #
     # Sort the data by a column, selected by header
@@ -472,12 +472,12 @@ module RubyExcel
     #
     
     def sort_by!( header )
+      raise ArgumentError, 'Sheet#sort_by! does not support blocks.' if block_given?
       idx = data.index_by_header( header ) - 1
       sort_method = lambda { |array| array[idx] }
       data.sort_by!( &sort_method )
       self
     end
-    undef :sort_by
     
     #
     # Break the Sheet into a Workbook with multiple Sheets, split by the values under a header.
