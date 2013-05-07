@@ -35,11 +35,7 @@ module RubyExcel
     #
   
     def <<( value )
-      case self
-      when Row ; lastone = ( idx == 1 ? data.cols + 1 : data.cols )
-      else     ; lastone = ( idx == 'A' ? data.rows + 1 : data.rows )
-      end
-      data[ translate_address( lastone ) ] = value
+      data[ translate_address( ( col_index( idx ) == 1 ? data.cols + 1 : data.cols ) ) ] = value
     end
     
     #
@@ -58,7 +54,7 @@ module RubyExcel
       data.delete( self ); self
     end
   
-   #
+    #
     # Yields each value
     #
 
@@ -239,7 +235,7 @@ module RubyExcel
   
     def getref( header )
       sheet.header_rows.times do |t|
-        res = sheet.row( t + 1 ).find &/^#{header}$/
+        res = sheet.row( t + 1 ).find { |v| v == header }
         return column_id( res ) if res
       end
       fail ArgumentError, 'Invalid header: ' + header.to_s
