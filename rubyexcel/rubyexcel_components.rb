@@ -1,7 +1,9 @@
 require_relative 'address.rb'
 require_relative 'data.rb'
 require_relative 'element.rb'
+require_relative 'excel_tools.rb'
 require_relative 'section.rb'
+require_relative 'sheet.rb'
 
 module RubyExcel
 
