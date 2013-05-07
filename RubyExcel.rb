@@ -306,16 +306,15 @@ module RubyExcel
 
     # @overload advanced_filter!( header, comparison_operator, search_criteria, ... )
     #   Filter on multiple criteria
-    # @example Filter to 'Part': 'Type1' and 'Type3', with Qty greater than 1
-    #   s.advanced_filter!( 'Part', :=~, /Type[13]/, 'Qty', :>, 1 )
-    # @example Filter to 'Part': 'Type1', with 'Ref1' containing 'X'
-    #   s.advanced_filter!( 'Part', :==, 'Type1', 'Ref1', :include?, 'X' )
-    #
     # @param [String] header a header to search under
     # @param [Symbol] comparison_operator the operator to compare with
     # @param [Object] search_criteria the value to filter by
     # @raise [ArgumentError] 'Number of arguments must be a multiple of 3'
     # @raise [ArgumentError] 'Operator must be a symbol'
+    # @example Filter to 'Part': 'Type1' and 'Type3', with Qty greater than 1
+    #   s.advanced_filter!( 'Part', :=~, /Type[13]/, 'Qty', :>, 1 )
+    # @example Filter to 'Part': 'Type1', with 'Ref1' containing 'X'
+    #   s.advanced_filter!( 'Part', :==, 'Type1', 'Ref1', :include?, 'X' )
     #
     
     def advanced_filter!( *args )

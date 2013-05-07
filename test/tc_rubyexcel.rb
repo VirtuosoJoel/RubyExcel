@@ -247,7 +247,13 @@ class TestSheet < Test::Unit::TestCase
     
     assert( @s.rows( 2, 4 ).to_a[0]['A'] == 'Type1' )
   
-  end  
+  end
+  
+  def test_sort_by
+  
+    assert_equal( @s.A3, @s.sort_by( 'Part' ).A5 )
+  
+  end
   
   def test_split
   

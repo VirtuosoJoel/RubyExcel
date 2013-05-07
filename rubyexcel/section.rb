@@ -73,7 +73,7 @@ module RubyExcel
     
     def each_without_headers
       return to_enum( :each_without_headers ) unless block_given?
-      each_address_without_headers { |addr| yield data[ addr ] }
+      each_address( false ) { |addr| yield data[ addr ] }
     end
     alias each_wh each_without_headers
     
@@ -92,7 +92,7 @@ module RubyExcel
     
     def each_cell_without_headers
       return to_enum( :each_cell_without_headers ) unless block_given?
-      each_address_without_headers { |addr| yield Element.new( sheet, addr ) }
+      each_address( false ) { |addr| yield Element.new( sheet, addr ) }
     end
     alias each_cell_wh each_cell_without_headers
   
@@ -149,7 +149,7 @@ module RubyExcel
   
     def map_without_headers!
       return to_enum( :map_without_headers! ) unless block_given?
-      each_address_without_headers { |addr| data[addr] = ( yield data[addr] ) }
+      each_address( false ) { |addr| data[addr] = ( yield data[addr] ) }
     end
   
     #
@@ -193,19 +193,6 @@ module RubyExcel
       data[ translate_address( id ) ] = val
     end
     alias []= write
-
-    private
-    
-    def translate_address( addr )
-      case self
-      when Row
-        col_letter( addr ) + idx.to_s
-      when Column
-        addr = addr.to_s unless addr.is_a?( String )
-        fail ArgumentError, "Invalid address : #{ addr }" if addr =~ /[^\d]/
-        idx + addr
-      end
-    end
 
   end
 
@@ -258,6 +245,10 @@ module RubyExcel
       fail ArgumentError, 'Invalid header: ' + header.to_s
     end
     
+    #
+    # The number of Columns in the Row
+    #
+    
     def length
       data.cols
     end
@@ -276,12 +267,15 @@ module RubyExcel
 
     private
 
-    def each_address
+    def each_address( unused=nil )
       return to_enum( :each_address ) unless block_given?
-      ( 'A'..col_letter( data.cols ) ).each { |col_id| yield "#{col_id}#{idx}" }
+      ( 'A'..col_letter( data.cols ) ).each { |col_id| yield translate_address( col_id ) }
     end
-    alias each_address_without_headers each_address
 
+    def translate_address( addr )
+      col_letter( addr ) + idx.to_s
+    end
+    
   end
 
   #
@@ -307,22 +301,27 @@ module RubyExcel
       super( sheet )
     end
     
+    #
+    # The number of Rows in the Column
+    #
+    
     def length
       data.rows
     end
 
     private
     
-    def each_address
+    def each_address( headers=true )
       return to_enum( :each_address ) unless block_given?
-      ( 1..data.rows ).each { |row_id| yield idx + row_id.to_s }
+      ( headers ? 1 : sheet.header_rows + 1 ).upto( data.rows ) { |row_id| yield translate_address( row_id ) }
     end
 
-    def each_address_without_headers
-      return to_enum( :each_address_without_headers ) unless block_given?
-      ( sheet.header_rows+1 ).upto( data.rows ) { |row_id| yield idx + row_id.to_s }
+    def translate_address( addr )
+      addr = addr.to_s unless addr.is_a?( String )
+      fail ArgumentError, "Invalid address : #{ addr }" if addr =~ /[^\d]/
+      idx + addr
     end
-
+    
   end
 
 end

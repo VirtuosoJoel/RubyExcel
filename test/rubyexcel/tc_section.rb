@@ -12,6 +12,7 @@ class TestRowColumn < Test::Unit::TestCase
   def teardown
     @s = nil
     @r = nil
+    @c = nil
   end
   
   def test_shovel
