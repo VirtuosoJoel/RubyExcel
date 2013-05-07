@@ -32,6 +32,12 @@ class TestRowColumn < Test::Unit::TestCase
   
   end
   
+  def test_cell_by_header
+  
+    assert_equal( @s.A2, @r.cell_h( 'Part' ).value )
+  
+  end
+  
   def test_find
     
     assert_equal( 'B2', @r.find( &/QT1/ ) )

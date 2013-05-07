@@ -137,19 +137,27 @@ Common Operations
 --------
 
 ```ruby
+#Some data to play with
+s = RubyExcel.sample_sheet
+
+#Have a look at the data
+puts s
+
 #Append a Column by adding a header
-s << 'Numbers'
-x = 1
+s << 'Number'
 
 #Iterate through the rest of the rows while appending data
+x = 1
 s.rows(2) { |row| row << x; x+=1 }
 
-#
+#Filter to specific part numbers
+s.filter!( 'Part', &/Type[1-3]/ )
+
+#Add the Number to the Cost in each row.
+s.rows(2) { |row| row.cell_h('Cost').value += row.cell_h('Number').value }
 
 #Split the data into multiple sheets by part number
 wb = s.split( 'Part' )
-
-#Will add more examples here later.
 
 ```
 
@@ -332,6 +340,10 @@ s.row(1) << 'New'
 s.rows(2) { |r| r << 'Column' }
 s.column(1) << 'New'
 s.columns(2) { |c| c << 'Row' }
+
+#Access a cell by column header (Row only)
+s.row(2).cell_by_header( 'Part' ) #=> Element A2
+s.row(2).cell_h( 'Cost' ) #=> Element E2
 
 #Delete the data referenced by self.
 row.delete
