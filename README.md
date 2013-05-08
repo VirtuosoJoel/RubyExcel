@@ -130,9 +130,6 @@ s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
 ```
 
-Some Examples
-========
-
 Common Operations
 --------
 
@@ -153,11 +150,24 @@ s.rows(2) { |row| row << x; x+=1 }
 #Filter to specific part numbers
 s.filter!( 'Part', &/Type[1-3]/ )
 
+#Sort by Part Number
+s.sort_by!( 'Part' )
+
 #Add the Number to the Cost in each row.
 s.rows(2) { |row| row.cell_h('Cost').value += row.cell_h('Number').value }
 
 #Split the data into multiple sheets by part number
 wb = s.split( 'Part' )
+
+#Open a sheet in an Excel Workbook
+#Output a sheet as a TSV file
+File.write( 'Output.txt', wb.sheets(1).to_s )
+
+#Output a sheet as an HTML page
+File.write( 'Output.htm', wb.sheets(2).to_html )
+
+#Open a sheet in an Excel Workbook
+wb.sheets( 'Type3' ).to_excel
 
 ```
 
