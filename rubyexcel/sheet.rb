@@ -36,7 +36,7 @@ module RubyExcel
     def initialize( name, workbook )
       @workbook = workbook
       @name = name
-      @header_rows = nil
+      @header_rows = 1
       @data = Data.new( self, [[]] )
     end
     
@@ -458,23 +458,15 @@ module RubyExcel
     alias each rows
     
     #
-    # Sort the data according to a block (avoiding headers)
+    # Sort the data by a column, selected by header(s)
+    #
+    # @param [String, Array<String>] headers the header(s) to sort the Sheet by
     #
     
-    def sort!( &block )
-      data.sort!( &block ); self
-    end
-    
-    #
-    # Sort the data by a column, selected by header
-    #
-    # @param [String] header the header to sort the Sheet by
-    #
-    
-    def sort_by!( header )
+    def sort_by!( *headers )
       raise ArgumentError, 'Sheet#sort_by! does not support blocks.' if block_given?
-      idx = data.index_by_header( header ) - 1
-      sort_method = lambda { |array| array[idx] }
+      idx_array = headers.flatten.map { |header| data.index_by_header( header ) - 1 }
+      sort_method = lambda { |array| idx_array.map { |idx| array[idx] } }
       data.sort_by!( &sort_method )
       self
     end

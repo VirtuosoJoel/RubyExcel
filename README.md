@@ -302,8 +302,9 @@ type_1_and_3, other = s.partition( 'Part', &/Type[13]/ )
 s.reverse_rows!
 s.reverse_columns!
 
-#Sort the rows by a header (ignores header rows)
+#Sort the rows by header(s) (ignores header rows)
 s.sort_by!( 'Part' )
+s.sort_by!( 'Qty', 'Part' )
 
 #Split a Sheet into a Workbook of Sheets by a column (selected by header)
 wb = s.split( 'Part' )
