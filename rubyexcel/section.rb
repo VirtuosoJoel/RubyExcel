@@ -252,7 +252,7 @@ module RubyExcel
     #
     # Find a value in this Row by its header
     #
-    # @param [String]header the header to search for
+    # @param [String] header the header to search for
     # @return [Object] the value at the address
     #
     
@@ -260,6 +260,18 @@ module RubyExcel
       self[ getref( header ) ]
     end
     alias val value_by_header
+    
+    #
+    # Set a value in this Row by its header
+    #
+    # @param [String] header the header to search for
+    # @param [Object] val the value to write
+    # 
+    
+    def set_value_by_header( header, val )
+      self[ getref( header ) ] = val
+    end
+    alias set_val set_value_by_header
 
     private
 

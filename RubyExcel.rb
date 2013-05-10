@@ -114,6 +114,15 @@ module RubyExcel
     end
     
     #
+    # Yields each Sheet.
+    #
+    
+    def each
+      return to_enum( :each ) unless block_given?
+      @sheets.each { |s| yield s }
+    end
+
+    #
     # Check whether the workbook has Sheets
     #
     # @return [Boolean] if there are any Sheets in the Workbook
@@ -136,14 +145,23 @@ module RubyExcel
     #
     # Select a Sheet or iterate through them
     #
-    # @param [Fixnum, String, nil] ref the reference to select a Sheet by
+    # @param [Fixnum, String, Regexp, nil] ref the reference to select a Sheet by
     # @return [RubyExcel::Sheet] if a search term was given
     # @return [Enumerator] if nil or no argument given
+    # @yield [RubyExcel::Sheet] yields each sheet, if there is no argument and a block is given
     #
     
     def sheets( ref=nil )
-      return to_enum (:each) if ref.nil?
-      ref.is_a?( Fixnum ) ? @sheets[ ref - 1 ] : @sheets.find { |s| s.name =~ /^#{ ref }$/i }
+      if ref.nil?
+        return to_enum (:each) unless block_given?
+        each { |s| yield s }
+      else
+        case ref
+        when Fixnum ; @sheets[ ref - 1 ]
+        when String ; @sheets.find { |s| s.name =~ /^#{ ref }$/i }
+        when Regexp ; @sheets.find { |s| s.name =~ ref }
+        end
+      end
     end
     
     # {Workbook#sort!}
@@ -175,12 +193,11 @@ module RubyExcel
     end
     
     #
-    # Yields each Sheet.
+    # The Workbook as a group of HTML Tables
     #
     
-    def each
-      return to_enum( :each ) unless block_given?
-      @sheets.each { |s| yield s }
+    def to_html
+      map(&:to_html).join('</br>')
     end
     
   end # Workbook

@@ -159,7 +159,6 @@ s.rows(2) { |row| row.cell_h('Cost').value += row.cell_h('Number').value }
 #Split the data into multiple sheets by part number
 wb = s.split( 'Part' )
 
-#Open a sheet in an Excel Workbook
 #Output a sheet as a TSV file
 File.write( 'Output.txt', wb.sheets(1).to_s )
 
@@ -204,6 +203,9 @@ wb.each #=> Enumerator
 #Sort the sheets
 wb.sort! { |x,y| x.name <=> y.name }
 wb.sort_by! &:name
+
+#Output the workbook as a series of HTML tables
+wb.to_html
 ```
 
 Sheet
@@ -393,6 +395,10 @@ col.map! { |val| val.to_s + 'a' }
 #Get the value of a cell in the current row by its header
 row.value_by_header( 'Part' ) #=> 'Type1'
 row.val( 'Part' ) #=> 'Type1'
+
+#Set the value of a cell in the current row by its header
+row.set_value_by_header( 'Part', 'Type5' )
+row.set_val( 'Part', 'Type5' )
 ```
 
 Cell / Range (Element)

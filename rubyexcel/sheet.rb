@@ -534,7 +534,7 @@ module RubyExcel
     #
     
     def to_html
-      "<table>\n" + data.map { |row| '<tr>' + row.map { |v| '<td>' + CGI.escapeHTML(v.to_s) }.join() + "\n" }.join() + '</table>'
+      %Q|<table border=1>\n<caption>#@name</caption>\n| + data.map { |row| '<tr>' + row.map { |v| '<td>' + CGI.escapeHTML(v.to_s) }.join }.join("\n") + "\n</table>"
     end
     
     #
