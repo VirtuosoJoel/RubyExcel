@@ -32,7 +32,6 @@ module RubyExcel
     #
     
     def initialize( sheet, addr )
-      fail ArgumentError, "Invalid range: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}:[A-Z]{1,3}\z|\A\d+:\d+\z/
       @sheet = sheet
       @data = sheet.data
       @address = addr
@@ -63,7 +62,7 @@ module RubyExcel
     
     def each_cell
       return to_enum( :each_cell ) unless block_given?
-      expand( address ).flatten.each { |addr| yield Element.new( sheet, addr ) }
+      expand( address ).flatten.each { |addr| yield Cell.new( sheet, addr ) }
     end
     
     #
@@ -77,11 +76,11 @@ module RubyExcel
     #
     # Return the first cell in the Range
     #
-    # @return [RubyExcel::Element]
+    # @return [RubyExcel::Cell]
     #
     
     def first_cell
-      Element.new( sheet, expand( address ).flatten.first )
+      Cell.new( sheet, expand( address ).flatten.first )
     end
     
     #
@@ -89,17 +88,17 @@ module RubyExcel
     #
     
     def inspect
-      "#{ self.class }:0x#{ '%x' % ( object_id << 1 ) }: #{ address }"
+      "#{ self.class }:0x#{ '%x' % ( object_id << 1 ) }: '#{ address }'"
     end
     
     #
     # Return the last cell in the Range
     #
-    # @return [RubyExcel::Element]
+    # @return [RubyExcel::Cell]
     #
     
     def last_cell
-      Element.new( sheet, expand( address ).flatten.last )
+      Cell.new( sheet, expand( address ).flatten.last )
     end
     
     #
@@ -111,58 +110,105 @@ module RubyExcel
       expand( address ).flatten.each { |addr| data[ addr ] = yield data[ addr ] }
     end
     
+  end
+  
+  #
+  # A single Cell
+  #
+  
+  class Cell < Element
+  
+    def initialize( sheet, addr )
+      fail ArgumentError, "Invalid Cell address: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+\z/
+      super
+    end
+
     #
-    # Return the value at this Element's address
+    # Return the value at this Cell's address
     #
-    # @return [Object, Array<Object>] the Object or Array of Objects within the data, referenced by the address
+    # @return [Object ] the Object within the data, referenced by the address
     #
   
     def value
-      address.include?( ':' ) ? expand( address ).map { |ar| ar.map { |addr| data[ addr ] } } : data[ address ]
+      data[ address ]
     end
   
     #
-    # Set the value at this Element's address
+    # Set the value at this Cell's address
+    #
+    # @param [Object] val the Object to write into the data
+    #
+  
+    def value=( val )
+      data[ address ] = val
+    end
+    
+    #
+    # The data at address as a String
+    #
+  
+    def to_s
+      val.to_s
+    end
+    
+  end
+
+  #
+  # A Range of Cells
+  #
+  
+  class Range < Element
+  
+    def initialize( sheet, addr )
+      fail ArgumentError, "Invalid Range address: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}:[A-Z]{1,3}\z|\A\d+:\d+\z/
+      super
+    end
+  
+    #
+    # Return the value at this Range's address
+    #
+    # @return [Array<Object>] the Array of Objects within the data, referenced by the address
+    #
+  
+    def value
+      expand( address ).map { |ar| ar.map { |addr| data[ addr ] } }
+    end
+  
+    #
+    # Set the value at this Range's address
     #
     # @param [Object, Array<Object>] val the Object or Array of Objects to write into the data
     #
   
     def value=( val )
     
-      #Range
-      if address.include? ':'
+      addresses = expand( address )
       
-        addresses = expand( address )
-        
-        # 2D Array of Values
-        if multi_array?( val ) && addresses.length > 1
-        
-          #Check the dimensions
-          val_rows, val_cols, range_rows, range_cols = val.length, val.max_by(&:length).length, addresses.length, addresses.max_by(&:length).length
-          val_rows == range_rows && val_cols == range_cols or fail ArgumentError, "Dimension mismatch! Value - rows: #{val_rows}, columns: #{ val_cols }. Range - rows: #{ range_rows }, columns: #{ range_cols }"
-          
-          #Write the values in order
-          addresses.each_with_index { |row,idx| row.each_with_index { |el,i| data[el] = val[idx][i] } }
-          
-        # Array of Values
-        elsif val.is_a?( Array )
-          
-          addresses.flatten.each_with_index { |addr, i| data[addr] = val[i] }
-          
-        # Single Value
-        else
-        
-          #Write the same value to every cell in the Range
-          addresses.each { |ar| ar.each { |addr| data[ addr ] = val } }
-          
-        end
+      # 2D Array of Values
+      if multi_array?( val ) && addresses.length > 1
       
-      #Cell
+        # Check the dimensions
+        val_rows, val_cols, range_rows, range_cols = val.length, val.max_by(&:length).length, addresses.length, addresses.max_by(&:length).length
+        val_rows == range_rows && val_cols == range_cols or fail ArgumentError, "Dimension mismatch! Value - rows: #{val_rows}, columns: #{ val_cols }. Range - rows: #{ range_rows }, columns: #{ range_cols }"
+        
+        # Write the values in order
+        addresses.each_with_index { |row,idx| row.each_with_index { |el,i| data[el] = val[idx][i] } }
+        
+      # Array of Values
+      elsif val.is_a?( Array )
+        
+        # Write the values in order
+        addresses.flatten.each_with_index { |addr, i| data[addr] = val[i] }
+        
+      # Single Value
       else
-        data[ address ] = val
-      end
       
-      self
+        # Write the same value to every cell in the Range
+        addresses.each { |ar| ar.each { |addr| data[ addr ] = val } }
+        
+      end
+    
+      val
     end
     
     #
@@ -170,9 +216,11 @@ module RubyExcel
     #
   
     def to_s
-      value.is_a?( Array ) ? value.map { |ar| ar.join "\t" }.join($/) : value.to_s
+      value.map { |ar| ar.join "\t" }.join($/)
     end
   
+  
   end
-
+  
 end
+

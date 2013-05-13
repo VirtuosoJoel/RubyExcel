@@ -43,7 +43,7 @@ module RubyExcel
     #
     
     def cell( ref )
-      Element.new( sheet, translate_address( ref ) )
+      Cell.new( sheet, translate_address( ref ) )
     end
   
     #
@@ -79,7 +79,7 @@ module RubyExcel
     
     def each_cell
       return to_enum( :each_cell ) unless block_given?
-      each_address { |addr| yield Element.new( sheet, addr ) }
+      each_address { |addr| yield Cell.new( sheet, addr ) }
     end
     
     #
@@ -88,7 +88,7 @@ module RubyExcel
     
     def each_cell_without_headers
       return to_enum( :each_cell_without_headers ) unless block_given?
-      each_address( false ) { |addr| yield Element.new( sheet, addr ) }
+      each_address( false ) { |addr| yield Cell.new( sheet, addr ) }
     end
     alias each_cell_wh each_cell_without_headers
   
@@ -123,11 +123,11 @@ module RubyExcel
     #
     # Return the last cell
     #
-    # @return [RubyExcel::Element]
+    # @return [RubyExcel::Cell]
     #
   
     def last_cell
-      Element.new( sheet, each_address.to_a.last )
+      Cell.new( sheet, each_address.to_a.last )
     end
   
     #
@@ -215,10 +215,10 @@ module RubyExcel
     end
     
     #
-    # Access a cell by its header
+    # Access a Cell by its header
     #
     # @param [String] header the header to search for
-    # @return [RubyExcel::Element] the cell
+    # @return [RubyExcel::Cell] the cell
     #
   
     def cell_by_header( header )

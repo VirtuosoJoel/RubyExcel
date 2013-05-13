@@ -63,4 +63,11 @@ class TestRowColumn < Test::Unit::TestCase
   
   end
   
+  def test_value_by_header
+  
+    @r.set_val( 'Part', 'Moose' )
+    assert_equal( 'Moose', @r[1] )
+  
+  end
+  
 end

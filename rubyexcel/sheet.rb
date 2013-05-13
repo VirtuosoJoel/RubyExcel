@@ -133,16 +133,16 @@ module RubyExcel
     end
     
     #
-    # Access an Element by indices.
+    # Access an Cell by indices.
     #
     # @param [Fixnum] row the row index
     # @param [Fixnum] col the column index
-    # @return [RubyExcel::Element]
+    # @return [RubyExcel::Cell]
     # @note Indexing is 1-based like Excel VBA
     #
     
     def cell( row, col )
-      Element.new( self, indices_to_address( row, col ) )
+      Cell.new( self, indices_to_address( row, col ) )
     end
     alias cells cell
     
@@ -397,11 +397,11 @@ module RubyExcel
     end
     
     #
-    # Access an Element by address.
+    # Access a Range by address.
     #
-    # @param [String, Element] first_cell the first Cell or Address in the Range
-    # @param [String, Element] last_cell the last Cell or Address in the Range
-    # @return [RubyExcel::Element]
+    # @param [String, Cell, Range] first_cell the first Cell or Address in the Range
+    # @param [String, Cell, Range] last_cell the last Cell or Address in the Range
+    # @return [RubyExcel::Range]
     # @note These are all valid arguments:
     #   ('A1') 
     #   ('A1:B2') 
@@ -413,7 +413,8 @@ module RubyExcel
     #
     
     def range( first_cell, last_cell=nil )
-      Element.new( self, to_range_address( first_cell, last_cell ) )
+      addr = to_range_address( first_cell, last_cell )
+      addr.include?(':') ? Range.new( self, addr ) : Cell.new( self, addr )
     end
     
     #
