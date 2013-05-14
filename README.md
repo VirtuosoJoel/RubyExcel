@@ -120,11 +120,11 @@ Reference a group of cells
 
 ```ruby
 s['A1:B3'] #=> Array
-s.range( 'A1:B3' ) #=> Element
-s.range( 'A:A' ) #=> Element (Column)
-s.range( '1:2' ) #=> Element (Rows)
-s.range( 'A1', 'B3' ) #=> Element
-s.range( s.cell( 1, 1 ), s.cell( 3, 2 ) ) #=> Element
+s.range( 'A1:B3' ) #=> Range
+s.range( 'A:A' ) #=> Range (Column)
+s.range( '1:2' ) #=> Range (Rows)
+s.range( 'A1', 'B3' ) #=> Range
+s.range( s.cell( 1, 1 ), s.cell( 3, 2 ) ) #=> Range
 s.row( 1 ) #=> Row
 s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
@@ -355,8 +355,8 @@ s.column(1) << 'New'
 s.columns(2) { |c| c << 'Row' }
 
 #Access a cell by column header (Row only)
-s.row(2).cell_by_header( 'Part' ) #=> Element A2
-s.row(2).cell_h( 'Cost' ) #=> Element E2
+s.row(2).cell_by_header( 'Part' ) #=> Cell A2
+s.row(2).cell_h( 'Cost' ) #=> Cell E2
 
 #Delete the data referenced by self.
 row.delete
@@ -409,7 +409,7 @@ Cell / Range (Element)
 cell = s.cell( 2, 2 )
 range = s.range('B2:C3')
 
-#Get the address and indices of the Element (Indices return that of the first cell for multi-cell Ranges)
+#Get the address and indices of the Element (Indices return that of the first Cell in a Range)
 cell.address
 cell.row
 cell.column
@@ -628,8 +628,6 @@ s.parent.save_excel( 'Output.xlsx' )
 
 Todo List
 =========
-
-- Write TestCases for most methods (Hopefully that'll stop me releasing broken gem versions)
 
 - Find bugs and extirpate them.
 
