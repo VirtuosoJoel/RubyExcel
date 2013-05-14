@@ -130,6 +130,24 @@ s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
 ```
 
+Using headers to reference the data
+--------
+
+Here we're looking for the "Part" in row 7
+
+```ruby
+s.row(7).value_by_header( 'Part' ) #=> "Type2"
+s.row(7).val( 'Part' ) #=> "Type2"
+
+s.column_by_header( 'Part' )[7] #=> "Type2"
+s.ch( 'Part' )[7] #=> "Type2"
+
+s.row(7).cell_by_header( 'Part' ) #=> Cell A7
+s.row(7).cell_h( 'Part' ) #=> Cell A7
+
+s.row(7).getref('Part') #=> "A"
+```
+
 Common Operations
 --------
 
