@@ -201,7 +201,9 @@ module RubyExcel
   
   class Row < Section
   
+    # The Row number
     attr_reader :idx
+    alias index idx
     
     #
     # Creates a RubyExcel::Row instance
@@ -296,7 +298,9 @@ module RubyExcel
   
   class Column < Section
   
+    # The Column letter
     attr_reader :idx
+    alias index idx
     
     #
     # Creates a RubyExcel::Column instance

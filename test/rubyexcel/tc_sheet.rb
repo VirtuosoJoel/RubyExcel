@@ -37,6 +37,16 @@ class TestSheet < Test::Unit::TestCase
     
   end
   
+  def test_advanced_filter
+    
+    assert_equal( 42, @s.averageif( 'Part', 'Cost', &/Type[13]/ ).to_i )
+  
+    assert_equal( 35, @s.averageif( 'Qty', 'Cost' ) { |i| i.between?( 2,3 ) }.to_i )
+  
+    assert_equal( 1, @s.averageif( 'Part', 'Qty' ) {true}.to_i )
+  
+  end
+
   def test_cell
   
     assert( @s.cell(1,1).value == 'Part' && @s.cell(1,1).address == 'A1' )

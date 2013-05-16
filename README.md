@@ -261,6 +261,23 @@ s += s
 s -= data
 s -= s
 
+#Filter on multiple criteria
+#You can add as many arguments as you like. The order is: Header, Method(Symbol), Argument
+#Note: Returns a copy of the sheet when used without "!".
+#Note: Sheet#filter is simpler to use, this is for the more in-depth stuff.
+_
+#Filter to Part 'Type1' and 'Type3' where Qty is greater than 1
+s.advanced_filter!( 'Part', :=~, /Type[13]/, 'Qty', :>, 1 )
+_
+#Filter to Part 'Type1' where Ref1 includes 'X'
+s.advanced_filter!( 'Part', :==, 'Type1', 'Ref1', :include?, 'X' )
+
+#Average all elements in a column by criteria in another column (selected by header)
+#Parameters: Header to pass to the block, Header to average, Block.
+#Note: Accepts Column objects in place of headers.
+s.averageif( 'Part', 'Cost' ) { |part| part == 'Type1' } #=> 56.38333333333333
+s.averageif( 'Part', 'Cost', &/Type1/ ) #=> 56.38333333333333
+
 #Select a column by its header
 s.column_by_header( 'Part' )
 s.ch( 'Part' )
@@ -405,6 +422,9 @@ col.each_cell { |ce| puts "#{ ce.address }: #{ ce.value }" }
 #Loop through each cell without including headers
 col.each_cell_without_headers { |ce| puts "#{ ce.address }: #{ ce.value }" }
 col.each_cell_wh { |ce| puts "#{ ce.address }: #{ ce.value }" }
+
+#Get the letter of a column by its header ( helps build an address when combined with row.idx )
+row.getref( 'Part' ) #=> "A"
 
 #Overwrite each value based on its current value
 row.map! { |val| val.to_s + 'a' }

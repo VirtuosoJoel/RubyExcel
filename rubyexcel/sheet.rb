@@ -133,6 +133,29 @@ module RubyExcel
     end
     
     #
+    # Average the values in a Column by searching another Column
+    #
+    # @param [String] find_header the header of the Column to yield to the block
+    # @param [String] avg_header the header of the Column to average
+    # @yield yields the find_header column values to the block
+    #
+    
+    def averageif( find_header, avg_header )
+      return to_enum( :sumif ) unless block_given?
+      find_col, avg_col  = ch( find_header ), ch( avg_header )
+      sum = find_col.each_cell_wh.inject([0,0]) do |sum,ce|
+        if yield( ce.value )
+          sum[0] += avg_col[ ce.row ]
+          sum[1] += 1
+          sum 
+        else
+          sum
+        end
+      end
+      sum.first.to_f / sum.last
+    end
+    
+    #
     # Access an Cell by indices.
     #
     # @param [Fixnum] row the row index
