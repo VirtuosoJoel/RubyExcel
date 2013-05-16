@@ -118,11 +118,11 @@ module RubyExcel
     #
     
     def to_excel( invisible = false )
-      self.sheets.count == self.sheets.map(&:name).uniq.length or fail NoMethodError, 'Duplicate sheet name'
+      self.sheets.count == sheets.map(&:name).uniq.length or fail NoMethodError, 'Duplicate sheet name'
       wb = get_workbook( nil, true )
       wb.parent.displayAlerts = false
       first_time = true
-      self.each do |s|
+      each do |s|
         sht = ( first_time ? wb.sheets(1) : wb.sheets.add( { 'after' => wb.sheets( wb.sheets.count ) } ) ); first_time = false
         sht.name = s.name
         make_sheet_pretty( dump_to_sheet( s.to_a, sht ) )
@@ -130,6 +130,21 @@ module RubyExcel
       wb.sheets(1).select
       wb.application.visible = true unless invisible
       wb
+    end
+    
+    # {Workbook#to_safe_format!}
+    
+    def to_safe_format
+      dup.to_safe_format!
+    end
+    
+    #
+    # Standardise the data for safe export to Excel.
+    #   Set each cell contents to a string and remove leading equals signs.
+    #
+    
+    def to_safe_format!
+      sheets { |s| s.rows { |r| r.map! { |v| v.to_s.sub( /^=/,"'=" ) } } }; self
     end
     
   end # Workbook

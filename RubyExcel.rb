@@ -3,13 +3,17 @@ require 'cgi'
 
 #
 # Ruby's standard Regexp class.
-#   Regexp#to_proc is a bit of "syntactic sugar" which allows shorthand Regexp blocks
-#
-# @example
-#   sheet.filter!( 'Part', &/Type[13]/ )
 #
 
 class Regexp
+
+  #
+  # A bit of "syntactic sugar" which allows shorthand Regexp blocks
+  #
+  # @example
+  #   sheet.filter!( 'Part', &/Type[13]/ )
+  #
+
   def to_proc
     proc { |s| self =~ s.to_s }
   end

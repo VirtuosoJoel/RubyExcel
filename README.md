@@ -541,7 +541,7 @@ pp s.to_a
 Excel Tools ( requires win32ole and Excel )
 --------
 
-Make sure all your data types are compatible with Excel first!
+Make sure all your data types are compatible with Excel first (see Workbook#to_safe_format!)
 
 ```ruby
 #Sample RubyExcel::Workbook to work with
@@ -575,6 +575,12 @@ rubywb.sheets(1).to_excel
 rubywb.save_excel
 rubywb.save_excel( 'Output.xlsx' )
 rubywb.save_excel( 'c:/example/Output.xlsx' )
+
+#Convert all internal data to Strings and disable leading equals signs
+#This should ensure compatibility with Excel for most types of data.
+#Note: This will disable any formulas currently in the Workbook.
+#Note: This modifies the data inside the Workbook. For a non-destructive version, leave off the exclamation mark.
+rubywb.to_safe_format!
 
 #Add borders to a given Excel Range
 #1st Argument: WIN32OLE Range
