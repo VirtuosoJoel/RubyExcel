@@ -563,6 +563,9 @@ Excel Tools ( requires win32ole and Excel )
 
 Make sure all your data types are compatible with Excel first (see Workbook#to_safe_format!)
 
+RubyExcel should only attempt to require win32ole if one of these methods is called.
+This should make it compatible as a data structure on non-windows systems.
+
 ```ruby
 #Sample RubyExcel::Workbook to work with
 rubywb = RubyExcel.sample_sheet.parent
