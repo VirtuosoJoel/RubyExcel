@@ -32,6 +32,9 @@ module RubyExcel
   class Workbook
     include Enumerable
 
+    # Names of methods which require win32ole
+    ExcelToolsMethods = [ :dump_to_sheet, :get_excel, :get_workbook, :make_sheet_pretty, :save_excel, :to_excel, :to_safe_format, :to_safe_format! ]
+    
     #
     # Creates a RubyExcel::Workbook instance.
     #
@@ -145,7 +148,33 @@ module RubyExcel
     def load( *args )
       add.load( *args )
     end
+    
+    #
+    # Don't require Windows-specific libraries unless the relevant methods are called
+    #
 
+    def method_missing(m, *args, &block)
+      if ExcelToolsMethods.include?( m )
+        require_relative 'rubyexcel/excel_tools.rb'
+        send( m, *args, &block )
+      else
+        super
+      end
+    end
+    
+    #
+    # Allow for certain method_missing calls
+    #
+    
+    def respond_to?( m )
+      if ExcelToolsMethods.include?( m )
+        true
+      else
+        super
+      end
+      
+    end
+    
     #
     # Select a Sheet or iterate through them
     #

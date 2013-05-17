@@ -37,7 +37,7 @@ class TestSheet < Test::Unit::TestCase
     
   end
   
-  def test_advanced_filter
+  def test_averageif
     
     assert_equal( 42, @s.averageif( 'Part', 'Cost', &/Type[13]/ ).to_i )
   

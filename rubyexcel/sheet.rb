@@ -395,7 +395,7 @@ module RubyExcel
     # Allow for certain method_missing calls
     #
     
-    def respond_to?(m)
+    def respond_to?( m )
     
       if m[-1] != '!' && respond_to?( m.to_s + '!' )
         true
