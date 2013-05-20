@@ -20,6 +20,11 @@ class TestWorkbook < Test::Unit::TestCase
     @wb = nil
   end
 
+  def test_name
+    @wb.name = 'Moose'
+    assert_equal( 'Moose', @wb.name )
+  end
+  
   def test_shovel
   
     @wb << @wb.dup

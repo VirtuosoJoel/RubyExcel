@@ -187,6 +187,7 @@ module RubyExcel
     #
     
     def write( id, val )
+      
       data[ translate_address( id ) ] = val
     end
     alias []= write

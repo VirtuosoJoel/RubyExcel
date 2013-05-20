@@ -15,7 +15,7 @@ Main documentation is [here](http://rubydoc.info/gems/rubyexcel "Rubydoc")
 For any requests, comments, etc. I keep an eye on [this forum](http://www.ruby-forum.com/forum/ruby "Ruby Mailing List").
 If you put "RubyExcel" in the subject title I should see it.
 
-Please feel free to log any bugs you find [here](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker").
+Please feel free to log any enhancement requests or bugs [here](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker").
 
 Details
 -----
@@ -194,6 +194,11 @@ Workbook
 ```ruby
 #Create a workbook
 wb = RubyExcel::Workbook.new
+wb = RubyExcel::Workbook.new( 'My Workbook' )
+
+#Get and set the name
+wb.name = 'My Workbook'
+wb.name #=> "My Workbook"
 
 #Add sheets to the workbook
 sheet1, sheet2 = wb.add('Sheet1'), wb.add
@@ -592,12 +597,14 @@ rubywb.sheets(1).to_excel
 
 #Output the RubyExcel::Workbook into an Excel Workbook and save the file
 #Note: The default directory is "Documents" or "My Documents" to support Ocra + InnoSetup installs.
+#The Workbook name is used as the filename unless an argument is passed.
 #Note: There is an optional second argument which if set to true doesn't make Excel visible.
-# This is a useful accelerator when running as an automated process.
-# If you set the process to be invisible, don't forget to close Excel after you're finished with it!
+  #This is a useful accelerator when running as an automated process.
+  #If you set the process to be invisible, don't forget to close Excel after you're finished with it!
 rubywb.save_excel
-rubywb.save_excel( 'Output.xlsx' )
+rubywb.save_excel( 'Output' )
 rubywb.save_excel( 'c:/example/Output.xlsx' )
+rubywb.save_excel( 'Output', true ) # ( Keeps Excel invisible if creating a new instance )
 
 #Convert all internal data to Strings and disable leading equals signs
 #This should ensure compatibility with Excel for most types of data.
@@ -669,8 +676,8 @@ s.sumif( 'Part', 'Cost', &/Type[13]/ )
 #Write the data to a TSV file
 File.write( 'output.txt', s.to_s )
 
-#Write the data to an XLSX file ( requires Excel and win32ole )
-s.parent.save_excel( 'Output.xlsx' )
+#Write the data to an Excel file ( requires Excel and win32ole )
+s.parent.save_excel
 ```
 
 Todo List

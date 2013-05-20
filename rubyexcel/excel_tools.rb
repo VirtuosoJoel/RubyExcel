@@ -30,6 +30,16 @@ module RubyExcel
   class Workbook
   
     #
+    # Find the Windows "Documents" or "My Documents" path, or return the present working directory if it can't be found.
+    #
+    # @return [String]
+    #
+  
+    def documents_path
+      Win32::Registry::HKEY_CURRENT_USER.open( 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders' )['Personal'] rescue Dir.pwd.gsub('/','\\')
+    end
+  
+    #
     # Drop a multidimensional Array into an Excel Sheet
     #
     # @param [Array<Array>] data the data to place in the Sheet
@@ -98,12 +108,11 @@ module RubyExcel
     # @return [WIN32OLE::Workbook] the Workbook, saved as filename.
     #
     
-    def save_excel( filename = 'Output', invisible = false )
+    def save_excel( filename = nil, invisible = false )
+      filename ||= name
       filename = filename.gsub('/','\\')
       unless filename.include?('\\')
-        keypath = 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders'
-        documents = Win32::Registry::HKEY_CURRENT_USER.open(keypath)['Personal'] rescue Dir.pwd.gsub('/','\\')
-        filename = documents + '\\' + filename 
+        filename = documents_path + '\\' + filename 
       end
       wb = to_excel( invisible )
       wb.saveas filename
