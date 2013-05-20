@@ -20,6 +20,10 @@ Please feel free to log any enhancement requests or bugs [here](https://github.c
 Details
 -----
 
+This gem was made to simplify the steps between data extraction and the final output.
+You can drop the data into it, reorganise and edit it, and then output into Excel or your preferred file format.
+The methods provided for Excel interaction will return the relevant Excel object, allowing you to get as detailed as you like with the output.
+
 Key design features taken from Excel:
 
 * 1-based indexing.
@@ -572,6 +576,7 @@ RubyExcel should only attempt to require win32ole if one of these methods is cal
 This should make it compatible as a data structure on non-windows systems.
 
 ```ruby
+
 #Sample RubyExcel::Workbook to work with
 rubywb = RubyExcel.sample_sheet.parent
 
@@ -583,10 +588,11 @@ excelwb = rubywb.get_workbook( excel )
 excelwb = rubywb.get_workbook
 
 #Drop data into an Excel Sheet
+#Note: The optional 2nd argument lets you give it an Excel sheet to use
 rubywb.dump_to_sheet( rubywb.sheets(1).to_a )
 rubywb.dump_to_sheet( rubywb.sheets(1).to_a, excelwb.sheets(1) )
 
-#Autofit and left-align a WIN32OLE Excel Sheet
+#Autofit, left-align, and border a WIN32OLE Excel Sheet
 rubywb.make_sheet_pretty( excelwb.sheets(1) )
 
 #Output the RubyExcel::Workbook into a new Excel Workbook
