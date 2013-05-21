@@ -692,3 +692,10 @@ Todo List
 - Find bugs and extirpate them.
 
 - Optimise slow operations
+
+
+-----------
+
+Copyright (c) 2013, Joel Pearson. All Rights Reserved.
+
+This project is licenced under the [MIT License](LICENSE.md).
