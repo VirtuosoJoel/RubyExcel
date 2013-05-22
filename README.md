@@ -457,8 +457,10 @@ Cell / Range (Element)
 
 ```ruby
 #Reference a Cell or Range
-cell = s.cell( 2, 2 )
-range = s.range('B2:C3')
+#If you select a single-Cell Range you get a Cell
+cell = s.cell( 2, 2 ) #=> Cell
+s.range('B2') #=> Cell
+range = s.range('B2:C3') #=> Range
 
 #Get the address and indices of the Element (Indices return that of the first Cell in a Range)
 cell.address
