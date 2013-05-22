@@ -38,7 +38,7 @@ module RubyExcel
     def disable_formulas!
       sheets { |s| s.rows { |r| r.each_cell { |ce|
         if ce.value.is_a?( String ) && ce.value[0] == '='
-          ce.value = ce.value.sub( /^=/,"'=" )
+          ce.value = ce.value.sub( /\A=/,"'=" )
         end
       } } }; self
     end
@@ -169,7 +169,7 @@ module RubyExcel
     def to_safe_format!
       sheets { |s| s.rows { |r| r.map! { |v|
         if v.is_a?( String )
-          v[0] == '=' ? v.sub( /^=/,"'=" ) : v
+          v[0] == '=' ? v.sub( /\A=/,"'=" ) : v
         else
           v.to_s
         end
