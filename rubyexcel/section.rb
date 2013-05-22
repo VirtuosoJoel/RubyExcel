@@ -27,18 +27,6 @@ module RubyExcel
     end
     
     #
-    # Append a value to the Section. 
-    #
-    # @param [Object] value the object to append
-    # @note This only adds an extra cell if it is the first Row / Column.
-    #       This prevents a loop through Rows or Columns from extending diagonally away from the main data.
-    #
-  
-    def <<( value )
-      data[ translate_address( ( col_index( idx ) == 1 ? data.cols + 1 : data.cols ) ) ] = value
-    end
-    
-    #
     # Access a cell by its index within the Section
     #
     
@@ -227,6 +215,18 @@ module RubyExcel
     end
     
     #
+    # Append a value to the Row. 
+    #
+    # @param [Object] value the object to append
+    # @note This only adds an extra cell if it is the first Row
+    #       This prevents a loop through Rows from extending diagonally away from the main data.
+    #
+  
+    def <<( value )
+      data[ translate_address( idx == 1 ? data.cols + 1 : data.cols ) ] = value
+    end
+    
+    #
     # Access a Cell by its header
     #
     # @param [String] header the header to search for
@@ -321,6 +321,18 @@ module RubyExcel
     def initialize( sheet, idx )
       @idx = idx
       super( sheet )
+    end
+    
+    #
+    # Append a value to the Column. 
+    #
+    # @param [Object] value the object to append
+    # @note This only adds an extra cell if it is the first Column.
+    #       This prevents a loop through Columns from extending diagonally away from the main data.
+    #
+  
+    def <<( value )
+      data[ translate_address( idx == 'A' ? data.rows + 1 : data.rows ) ] = value
     end
     
     #
