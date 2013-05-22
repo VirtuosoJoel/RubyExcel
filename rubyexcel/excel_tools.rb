@@ -29,6 +29,20 @@ module RubyExcel
 
   class Workbook
   
+  
+    #
+    # Add a single quote before any equals sign in the data.
+    #   Disables any Strings which would have been interpreted as formulas by Excel
+    #
+    
+    def disable_formulas!
+      sheets { |s| s.rows { |r| r.each_cell { |ce|
+        if ce.value.is_a?( String ) && ce.value[0] == '='
+          ce.value = ce.value.sub( /^=/,"'=" )
+        end
+      } } }; self
+    end
+  
     #
     # Find the Windows "Documents" or "My Documents" path, or return the present working directory if it can't be found.
     #
@@ -153,7 +167,13 @@ module RubyExcel
     #
     
     def to_safe_format!
-      sheets { |s| s.rows { |r| r.map! { |v| v.to_s.sub( /^=/,"'=" ) } } }; self
+      sheets { |s| s.rows { |r| r.map! { |v|
+        if v.is_a?( String )
+          v[0] == '=' ? v.sub( /^=/,"'=" ) : v
+        else
+          v.to_s
+        end
+      } } }; self
     end
     
   end # Workbook

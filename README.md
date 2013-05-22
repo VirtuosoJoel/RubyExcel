@@ -593,6 +593,10 @@ excel = rubywb.get_excel
 excelwb = rubywb.get_workbook( excel )
 excelwb = rubywb.get_workbook
 
+#Adds a leading single quote to any Strings with a leading Equals sign.
+#This should prevent Excel from throwing Exceptions about invalid data such as "==".
+rubywb.disable_formulas!
+
 #Drop data into an Excel Sheet
 #Note: The optional 2nd argument lets you give it an Excel sheet to use
 rubywb.dump_to_sheet( rubywb.sheets(1).to_a )
@@ -670,7 +674,9 @@ excel.visible = true
 wb = excel.workbooks.add
 sheet = wb.sheets(1)
 sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data[0].length ) ).value = data
-wb.saveas( Dir.pwd.gsub('/','\\') + '\\Output.xlsx' )
+#Excel should automatically target the "Documents" / "My Documents" folder when using a new instance.
+#Excel should use the default file extension for the version it's using.
+wb.saveas( 'Output' )
 ```
 
 With RubyExcel:
@@ -689,6 +695,7 @@ s.sumif( 'Part', 'Cost', &/Type[13]/ )
 File.write( 'output.txt', s.to_s )
 
 #Write the data to an Excel file ( requires Excel and win32ole )
+#This aims at "Documents" or "My Documents" by default and uses the Workbook's "name" attribute.
 s.parent.save_excel
 ```
 
