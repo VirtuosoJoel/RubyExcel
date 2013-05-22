@@ -302,6 +302,10 @@ s.columns( 2 ) { |c| puts c } #From the 2nd to the last column
 s.columns( 'B', 'D' ) { |c| puts c } #Columns 2 to 4
 s.columns( 2, 4 ) { |c| puts c } #Columns 2 to 4
 
+#Count is included via Enumerable and accepts a block which will yield Row or Column.
+s.rows.count { |r| r.val('Part') == 'Type1' } #=> 3
+s.rows.count { |r| r.val('Part') == 'Type1' && r.val('Qty') < 2 } #=> 2
+
 #Remove all empty rows & columns
 s.compact!
 
