@@ -121,6 +121,14 @@ module RubyExcel
     end
   
     #
+    # Return the value of the last cell
+    #
+  
+    def last
+      last_cell.value
+    end
+  
+    #
     # Return the last cell
     #
     # @return [RubyExcel::Cell]
