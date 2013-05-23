@@ -519,6 +519,11 @@ s.offset( 'A2', 1, 2 ) #=> "C3"
 s.offset( 'A2', 2, 0 ) #=> "A4"
 s.offset( 'A2', -1, 0 ) #=> "A1"
 
+#Here's a trick you can try if you're going to use the Address tools a lot:
+include RubyExcel::Address
+#Now you can use all the address methods in the current scope:
+offset( 'C3', 1, -2 ) #=> A4
+
 ```
 
 Importing a Hash
