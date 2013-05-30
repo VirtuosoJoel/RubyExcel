@@ -318,9 +318,10 @@ require_relative 'address.rb'
     #
     
     def partition( header, &block )
+      copy = dup
       idx = index_by_header( header )
-      d1, d2 = no_headers.partition { |row| yield row[ idx -1 ] }
-      [ headers + d1, headers + d2 ] if headers
+      d1, d2 = copy.no_headers.partition { |row| yield row[ idx -1 ] }
+      [ copy.headers + d1, copy.headers.map(&:dup) + d2 ] if headers
     end
     
     #
