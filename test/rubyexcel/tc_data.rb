@@ -1,4 +1,4 @@
-require_relative '../../rubyexcel'
+require_relative '../../lib/rubyexcel'
 require 'test/unit'
 
 class TestData < Test::Unit::TestCase
