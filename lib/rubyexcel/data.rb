@@ -45,7 +45,12 @@ require_relative 'address.rb'
     
     def <<( other )
       case other
-      when Array  ; multi_array?( other ) ? @data += other : @data << other
+      when Array
+        if multi_array?( other )
+          all.all?(&:empty?) ? @data = other : @data += other
+        else
+          all.all?(&:empty?) ? @data = [ other ] : @data << other
+        end
       when Hash   ; @data += _convert_hash( other )
       when Sheet  ; empty? ? @data = other.data.all.dup : @data += other.data.dup.no_headers
       when Row    ; @data << other.to_a.dup

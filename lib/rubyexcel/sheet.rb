@@ -346,7 +346,7 @@ module RubyExcel
     #
     
     def match( header, &block )
-      row_id( column_by_header( header ).find( &block ) )
+      row_id( column_by_header( header ).find( &block ) ) rescue nil
     end
     
     #
