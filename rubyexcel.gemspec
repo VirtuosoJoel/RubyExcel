@@ -8,4 +8,5 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/VirtuosoJoel'
   s.email       = 'VirtuosoJoel@gmail.com'
   s.license     = 'MIT'
+  s.extra_rdoc_files = 'LICENSE.md'
 end

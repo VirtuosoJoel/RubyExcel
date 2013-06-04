@@ -190,6 +190,9 @@ File.write( 'Output.htm', wb.sheets(2).to_html )
 #Open a sheet in an Excel Workbook
 wb.sheets( 'Type3' ).to_excel
 
+#If you feel the need to delete everything between a set of rows:
+s.rows(2, 4).reverse_each &:delete
+
 ```
 
 Workbook
@@ -714,6 +717,6 @@ Todo List
 
 -----------
 
-Copyright (c) 2013, Joel Pearson. All Rights Reserved.
+Copyright (c) 2013, Joel Pearson and Contributors. All Rights Reserved.
 
 This project is licenced under the [MIT License](LICENSE.md).
