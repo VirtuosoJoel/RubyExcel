@@ -566,7 +566,7 @@ module RubyExcel
     #
     
     def to_s
-      data.map { |ar| ar.map { |v| v.to_s.gsub(/\t|\n/,' ') }.join "\t" }.join( $/ )
+      data.map { |ar| ar.map { |v| v.to_s.gsub(/\t|\n|\r/,' ') }.join "\t" }.join( $/ )
     end
     
     #

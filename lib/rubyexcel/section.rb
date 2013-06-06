@@ -172,7 +172,7 @@ module RubyExcel
     #
     
     def to_s
-      to_a.join ( self.is_a?( Row ) ? "\t" : "\n" )
+      to_a.map { |v| v.to_s.gsub(/\t|\n|\r/,' ') }.join ( self.is_a?( Row ) ? "\t" : "\n" )
     end
 
     #
