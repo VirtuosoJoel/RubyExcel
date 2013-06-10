@@ -150,7 +150,7 @@ module RubyExcel
         sht.name = s.name
         make_sheet_pretty( dump_to_sheet( s.to_a, sht ) )
       end
-      wb.sheets(1).select
+      wb.sheets(1).select rescue nil
       wb.application.visible = true unless invisible
       wb
     end

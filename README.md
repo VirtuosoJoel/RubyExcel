@@ -193,6 +193,15 @@ wb.sheets( 'Type3' ).to_excel
 #If you feel the need to delete everything between a set of rows:
 s.rows(2, 4).reverse_each &:delete
 
+#Gather text files containing string versions of RubyExcel::Sheet into a Workbook
+wb = RubyExcel::Workbook.new
+Dir.glob( '*.txt' ) do |f|
+  data = File.read(f).split($/).map { |r| r.split("\t") }
+  s = wb.add( f.chomp('.txt') )
+  s.load data
+end
+
+
 ```
 
 Workbook
@@ -719,4 +728,4 @@ Todo List
 
 Copyright (c) 2013, Joel Pearson and Contributors. All Rights Reserved.
 
-This project is licenced under the [MIT License](LICENSE.md).
+This project is licenced under the [MIT License](https://github.com/VirtuosoJoel/RubyExcel/blob/master/LICENSE.md).
