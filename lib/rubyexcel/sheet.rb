@@ -277,6 +277,7 @@ module RubyExcel
     #
     
     def filter!( header, &block )
+      return to_enum( :filter!, header ) unless block_given?
       data.filter!( header, &block ); self
     end
     
@@ -545,6 +546,14 @@ module RubyExcel
     end
     
     #
+    # The Sheet as a CSV String
+    #
+    
+    def to_csv
+      CSV.generate { |csv| to_a.each { |r| csv << r } }
+    end
+    
+    #
     # The Sheet as a WIN32OLE Excel Workbook
     # @note This requires Windows and MS Excel
     #
@@ -562,11 +571,19 @@ module RubyExcel
     end
     
     #
-    # The Sheet as a Tab Seperated Value String
+    # The Sheet as a Tab Seperated Value String (Strips extra whitespace)
     #
     
     def to_s
       data.map { |ar| ar.map { |v| v.to_s.gsub(/\t|\n|\r/,' ') }.join "\t" }.join( $/ )
+    end
+    
+    #
+    # the Sheet as a TSV String
+    #
+    
+    def to_tsv
+      CSV.generate( :col_sep => "\t" ) { |csv| to_a.each { |r| csv << r } }
     end
     
     #

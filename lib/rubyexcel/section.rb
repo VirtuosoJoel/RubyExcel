@@ -85,7 +85,7 @@ module RubyExcel
     #
   
     def empty?
-      all? { |val| val.to_s.empty? }
+      each_wh.all? { |val| val.to_s.empty? }
     end
     
     #

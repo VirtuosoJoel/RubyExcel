@@ -254,8 +254,8 @@ require_relative 'address.rb'
       headers = headers.flatten
       hrow = sheet.header_rows - 1
       ensure_shape
-      @data = @data.transpose.select{ |col| headers.include?( col[hrow] ) }
-      @data = @data.sort_by{ |col| headers.index( col[hrow] ) || col[hrow] }.transpose
+      @data = @data.transpose.select{ |col| col[0..hrow].any?{ |val| headers.include?( val ) } }
+      @data = @data.sort_by{ |col| headers.index( col[0..hrow].select { |val| headers.include?( val ) }.first ) || headers.length }.transpose
       calc_dimensions
     end
     
@@ -419,7 +419,9 @@ require_relative 'address.rb'
     private
     
     def calc_dimensions
-      @rows, @cols = @data.length, @data.max_by { |row| row.length }.length; self
+      @rows = ( @data.length rescue 0 )
+      @cols = ( @data.max_by { |row| row.length }.length rescue 0 )
+      self
     end
     
     def ensure_shape

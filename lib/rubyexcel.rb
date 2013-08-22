@@ -1,5 +1,6 @@
 require_relative 'rubyexcel/rubyexcel_components.rb'
 require 'cgi'
+require 'csv'
 
 #
 # Ruby's standard Regexp class.
