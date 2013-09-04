@@ -119,7 +119,7 @@ module RubyExcel
   class Cell < Element
   
     def initialize( sheet, addr )
-      fail ArgumentError, "Invalid Cell address: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+\z/
+      fail ArgumentError, "Invalid Cell address: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+\z/i
       super
     end
 
@@ -160,7 +160,7 @@ module RubyExcel
   class Range < Element
   
     def initialize( sheet, addr )
-      fail ArgumentError, "Invalid Range address: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}:[A-Z]{1,3}\z|\A\d+:\d+\z/
+      fail ArgumentError, "Invalid Range address: #{ addr }" unless addr =~ /\A[A-Z]{1,3}\d+:[A-Z]{1,3}\d+\z|\A[A-Z]{1,3}:[A-Z]{1,3}\z|\A\d+:\d+\z/i
       super
     end
   

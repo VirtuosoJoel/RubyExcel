@@ -63,7 +63,7 @@ module RubyExcel
     #
   
     def column_id( address )
-      address[/[A-Z]+/]
+      address[/[A-Z]+/i].upcase
     end
     
     #

@@ -170,6 +170,16 @@ module RubyExcel
     alias cells cell
     
     #
+    # Delete all data and headers from Sheet
+    # 
+    
+    def clear_all
+      @data = Data.new( self, [[]] )
+      self
+    end
+    alias delete_all clear_all
+    
+    #
     # Access a Column (Section) by its reference.
     #
     # @param [String, Fixnum] index the Column reference
@@ -259,7 +269,7 @@ module RubyExcel
     end
     
     #
-    # Check whether the Sheet contains data
+    # Check whether the Sheet contains data (not counting headers)
     #
     # @return [Boolean] if there is any data
     #
@@ -323,6 +333,27 @@ module RubyExcel
     def inspect
       "#{ self.class }:0x#{ '%x' % (object_id << 1) }: #{ name }"
     end
+    
+    #
+    # The last Column in the Sheet
+    #
+    # @return [RubyExcel::Column]
+    #
+    
+    def last_column
+      column( maxcol )
+    end
+    alias last_col  last_column
+    
+    #
+    # The last Row in the Sheet
+    #
+    # @return [RubyExcel::Row]
+    #
+    
+    def last_row
+      row( maxrow )
+    end   
     
     #
     # Populate the Sheet with data (overwrite)
@@ -596,6 +627,17 @@ module RubyExcel
       data.uniq!( header ); self
     end
     alias unique! uniq!
+    
+    #
+    # Remove any Rows with duplicate values within a Column
+    #
+    # @return [Range] the Sheet's contents in Range
+    #
+    
+    def usedrange
+      raise NoMethodError, 'Sheet is empty' if empty?
+      Range.new( self, 'A1:' + indices_to_address( maxrow, maxcol ) )
+    end
     
     #
     # Find a value within a Column by searching another Column
