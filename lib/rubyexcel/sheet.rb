@@ -174,7 +174,7 @@ module RubyExcel
     # 
     
     def clear_all
-      @data = Data.new( self, [[]] )
+      data.delete_all
       self
     end
     alias delete_all clear_all
@@ -629,7 +629,7 @@ module RubyExcel
     alias unique! uniq!
     
     #
-    # Remove any Rows with duplicate values within a Column
+    # Select the used Range in the Sheet
     #
     # @return [Range] the Sheet's contents in Range
     #

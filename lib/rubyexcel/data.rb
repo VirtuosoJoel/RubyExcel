@@ -175,6 +175,14 @@ require_relative 'address.rb'
     end
     
     #
+    # Wipe all data
+    #
+    
+    def delete_all
+      @data = [[]]
+    end
+    
+    #
     # Deletes the data referenced by a column id
     #
     
