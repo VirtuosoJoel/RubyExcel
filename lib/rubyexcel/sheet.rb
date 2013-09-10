@@ -487,6 +487,7 @@ module RubyExcel
     def reverse_rows!
       data.reverse_rows!; self
     end
+    alias reverse! reverse_rows!
     
     #
     # Create a Row from an index
