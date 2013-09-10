@@ -515,6 +515,18 @@ module RubyExcel
     alias each rows
     
     #
+    # Save the RubyExcel::Sheet as an Excel Workbook
+    #
+    # @param [String] filename the filename to save as
+    # @param [Boolean] invisible leave Excel invisible if creating a new instance
+    # @return [WIN32OLE::Workbook] the Workbook, saved as filename.
+    #
+    
+    def save_excel( filename = nil, invisible = false )      
+      workbook.dup.clear_all.add( self.dup ).workbook.save_excel( filename, invisible )
+    end
+    
+    #
     # Sort the data by a column, selected by header(s)
     #
     # @param [String, Array<String>] headers the header(s) to sort the Sheet by
