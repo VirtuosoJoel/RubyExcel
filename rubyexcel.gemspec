@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'rubyexcel'
-  s.version     = '0.3.0'
+  s.version     = '0.3.1'
   s.summary     = 'Spreadsheets in Ruby'
   s.description = "A tabular data structure in Ruby, with header-based helper methods for analysis and editing, and some of Excel's API style. Can output as 2D Array, HTML, CSV, TSV, or to an Excel WIN32OLE Object"
   s.authors     = ['Joel Pearson']

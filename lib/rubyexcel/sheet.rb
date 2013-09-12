@@ -571,7 +571,7 @@ module RubyExcel
     end
     
     #
-    # Summarise the values of a Column into a Hash
+    # Return a Hash containing the Column values and the number of times each appears.
     #
     # @param [String] header the header of the Column to summarise
     # @return [Hash]
@@ -580,6 +580,18 @@ module RubyExcel
     def summarise( header )
       ch( header ).summarise
     end
+    alias summarize summarise
+    
+    #
+    # Overwrite the sheet with the Summary of a Column
+    # 
+    # @param [String] header the header of the Column to summarise
+    #
+    
+    def summarise!( header )
+      load( summarise( header ).to_a.unshift [ header, 'Count' ] )
+    end
+    alias summarize! summarise!
     
     #
     # The Sheet as a 2D Array
