@@ -148,11 +148,20 @@ module RubyExcel
     #
     # Read a value by address
     #
-    # @param [String, Fixnum] id the index or reference of the required value
+    # @param [String, Fixnum, ::Range] start an index or Range of indices.
+    # @param [Fixnum] slice if the first argument is an index, how many cells to read.
     #
   
-    def read( id )
-      data[ translate_address( id ) ]
+    def read( start, slice=nil )
+      if slice
+        ( start..( step_index( start, slice ) ) ).map { |n| data[ translate_address( n ) ] }
+      else
+        if start.is_a?( ::Range ) # Standard Ruby Range
+          start.map { |n| data[ translate_address( n ) ] }
+        else # Single value
+          data[ translate_address( start ) ]
+        end
+      end
     end
     alias [] read
     
@@ -178,17 +187,24 @@ module RubyExcel
     #
     # Write a value by address
     #
-    # @param [String, Fixnum] id the index or reference to write to
-    # @param [Object] val the object to place at the address
+    # @param [Array<String, Fixnum, ::Range, Object>] args the address to write the data to, and the data to write.
     #
     
-    def write( id, val )
-      
-      data[ translate_address( id ) ] = val
+    def write( *args )
+      val = args.pop
+      if args.length == 1
+        if args[0].is_a?( ::Range ) # Standard Ruby Range
+          sheet.range( to_range_address( translate_address( args[0].first ), translate_address( args[0].last ) ) ).value = val
+        else # Single value
+          data[ translate_address( args[0] ) ] = val
+        end
+      else # Slice
+        sheet.range( to_range_address( translate_address( args[0] ), translate_address( step_index( args[0], args[1] ) ) ) ).value = val
+      end
     end
     alias []= write
 
-  end
+  end # Section
 
   #
   # A Row in the Sheet
@@ -296,7 +312,7 @@ module RubyExcel
       col_letter( addr ) + idx.to_s
     end
     
-  end
+  end # Row
 
   #
   # A Column in the Sheet
@@ -356,6 +372,6 @@ module RubyExcel
       idx + addr
     end
     
-  end
+  end # Column
 
-end
+end # RubyExcel

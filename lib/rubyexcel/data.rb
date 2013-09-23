@@ -343,6 +343,7 @@ require_relative 'address.rb'
     
     def read( addr )
       row_idx, col_idx = address_to_indices( addr )
+      return nil if row_idx > rows
       @data[ row_idx-1 ][ col_idx-1 ]
     end
     alias [] read

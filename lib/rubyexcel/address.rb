@@ -49,10 +49,10 @@ module RubyExcel
     # @return [String] the column letter
     #
   
-    def col_letter( index )
+    def col_letter( index, start='A' )
       return index if index.is_a? String
       index > 0 or fail ArgumentError, 'Indexing is 1-based'
-      a = 'A'; ( index - 1 ).times { a.next! }; a
+      a = start.dup; ( index - 1 ).times { a.next! }; a
     end
   
     #
@@ -142,6 +142,34 @@ module RubyExcel
     end
     
     #
+    # Translates an address to a row id
+    #
+    # @param [String] address the address to translate
+    # @return [Fixnum] the row id
+    #
+    
+    def row_id( address )
+      address[/\d+/].to_i
+    end
+    
+    #
+    # Step an index forward for an Array-style slice
+    #
+    # @param [Fixnum, String] start the index to start at
+    # @slice [Fixnum] slice the amount to advance by (1 means no advance)
+    #
+    
+    def step_index( start, slice )
+      if start.is_a?( Fixnum )
+        start + slice - 1
+      else
+        x = start.dup
+        ( slice - 1 ).times { x.next! }
+        x
+      end
+    end
+    
+    #
     # Translates two objects to a range address
     #
     # @param [String, RubyExcel::Element] obj1 the first address element
@@ -154,18 +182,7 @@ module RubyExcel
       addr << ':' + ( obj2.respond_to?( :address ) ? obj2.address : obj2.to_s ) if obj2
       addr
     end
-    
-    #
-    # Translates an address to a row id
-    #
-    # @param [String] address the address to translate
-    # @return [Fixnum] the row id
-    #
-    
-    def row_id( address )
-      address[/\d+/].to_i
-    end
-    
-  end
-  
+
+  end    
+
 end
