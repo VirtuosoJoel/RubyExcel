@@ -39,7 +39,7 @@ Typical usage:
 About
 -----
 
-This gem is designed as a way to conveniently edit table data before outputting it to Excel (XLSX) or TSV format (which Excel can interpret).
+This gem is designed as a way to conveniently edit table data before outputting it to a variety of formats which Excel can interpret, including WIN32OLE Excel Workbooks.
 It attempts to take as much as possible from Excel's API while providing some of the best bits of Ruby ( e.g. Enumerators, Blocks, Regexp ).
 An important feature is allowing reference to Columns via their Headers for convenience and enhanced code readability.
 As this works directly on the data, processing is faster than using Excel itself.
@@ -130,8 +130,16 @@ s.range( '1:2' ) #=> Range (Rows)
 s.range( 'A1', 'B3' ) #=> Range
 s.range( s.cell( 1, 1 ), s.cell( 3, 2 ) ) #=> Range
 s.row( 1 ) #=> Row
+s.row(1)[1] #=> Value
+s.row(1)[1, 2] #=> Array
+s.row(1)['A', 2] #=> Array
+s.row(1)[1..2] #=> Array
+s.row(1)['A'..'B'] #=> Array
 s.column( 'A' ) #=> Column
 s.column( 1 ) #=> Column
+s.column(1)[1] #=> Value
+s.column(1)[1, 2] #=> Array
+s.column(1)[1..2] #=> Array
 ```
 
 Using headers to reference the data
@@ -402,6 +410,30 @@ Row / Column (Section)
 #Reference a Row or Column
 row = s.row(2)
 col = s.column('B')
+
+#Read a value
+row[1] #=> "Type1"
+row['A'] #=> "Type1"
+col[1] #=> "Ref1"
+
+#Read multiple values
+row[1..2] #=> ["Type1", "QT1"]
+row[1, 2] #=> ["Type1", "QT1"]
+row['A', 2] #=> ["Type1", "QT1"]
+col[1..2] #=> ["Ref1", "QT1"]
+col[1, 2] #=> ["Ref1", "QT1"]
+
+#Write a value
+row[1] = "Type1"
+row['A'] = "Type1"
+col[1] = "Ref1"
+
+#Write multiple values
+row[1..2] = "Type1", "QT1"
+row[1, 2] = "Type1", "QT1"
+row['A', 2] = "Type1", "QT1"
+col[1..2] = "Ref1", "QT1"
+col[1, 2] = "Ref1", "QT1"
 
 =begin
 Append a value

@@ -156,7 +156,7 @@ module RubyExcel
     # Step an index forward for an Array-style slice
     #
     # @param [Fixnum, String] start the index to start at
-    # @slice [Fixnum] slice the amount to advance by (1 means no advance)
+    # @param [Fixnum] slice the amount to advance to (1 means keep the same index)
     #
     
     def step_index( start, slice )
