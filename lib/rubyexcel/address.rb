@@ -149,7 +149,7 @@ module RubyExcel
     #
     
     def row_id( address )
-      address[/\d+/].to_i
+      Integer( address[/\d+/] )
     end
     
     #

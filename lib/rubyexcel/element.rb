@@ -35,8 +35,8 @@ module RubyExcel
       @sheet = sheet
       @data = sheet.data
       @address = addr
-      @column = column_id( addr )
-      @row = row_id( addr )
+      @column = ( addr =~ /[a-z]/i ? column_id( addr ) : 'A' )
+      @row = ( addr =~ /\d/ ? row_id( addr ) : 1 )
     end
     
     #

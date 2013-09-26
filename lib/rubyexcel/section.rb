@@ -226,7 +226,7 @@ module RubyExcel
     #
 
     def initialize( sheet, idx )
-      @idx = idx.to_i
+      @idx = Integer( idx )
       super( sheet )
     end
     
