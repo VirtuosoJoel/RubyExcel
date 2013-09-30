@@ -60,4 +60,12 @@ module RubyExcel
     Workbook.new.load RubyExcel.sample_data
   end
  
+  #
+  # Shortcut to import a WIN32OLE Workbook or Sheet
+  #
+ 
+  def self.import( *args )
+    Workbook.new.import( *args )
+  end
+ 
 end

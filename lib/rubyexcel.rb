@@ -34,7 +34,7 @@ module RubyExcel
     include Enumerable
 
     # Names of methods which require win32ole
-    ExcelToolsMethods = [ :disable_formulas!, :documents_path, :dump_to_sheet, :get_excel, :get_workbook, :make_sheet_pretty, :save_excel, :to_excel, :to_safe_format, :to_safe_format! ]
+    ExcelToolsMethods = [ :disable_formulas!, :documents_path, :dump_to_sheet, :get_excel, :get_workbook, :import, :make_sheet_pretty, :save_excel, :to_excel, :to_safe_format, :to_safe_format! ]
     
     # Get and set the Workbook name
     attr_accessor :name

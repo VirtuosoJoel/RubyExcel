@@ -97,6 +97,70 @@ module RubyExcel
     end
 
     #
+    # Import a WIN32OLE Object as a Workbook or Sheet
+    #
+    # @param [WIN32OLE::Workbook, WIN32OLE::Sheet, String] other The WIN32OLE Object, either Sheet or Workbook, to import, or a path to the file.
+    # @param [String] sheetname the name of a specific Sheet to import.
+    # @param [Boolean] keep_formulas Retain Excel formulas rather than importing their current values
+    # @return [self] self with the data and name(s) imported.
+    #
+    
+    def import( other, sheetname=nil, keep_formulas=false )
+      operation = ( keep_formulas ? :formula : :value )
+    
+      if other.is_a?( String )
+      
+        # Filename
+        File.exists?( other ) || fail( ArgumentError, "Unable to find file: #{ other }" )
+        
+        #Open the file with Excel
+        excel = WIN32OLE.new( 'excel.application' )
+        excel.displayalerts = false
+        wb = excel.workbooks.open({'filename'=> other, 'readOnly' => true})
+        
+        # Only one sheet, or the entire Workbook?
+        if sheetname
+          add( sheetname ).load( wb.sheets( sheetname ).usedrange.send( operation ) )
+        else
+          self.name = File.basename( other, '.*' )
+          wb.sheets.each { |sh| add( sh.name ).load( sh.usedrange.send( operation ) ) }
+        end
+        
+        # Cleanup
+        wb.close
+        excel.quit
+        
+      elsif !other.respond_to?( :ole_respond_to? )
+      
+        fail ArgumentError, "Invalid input: #{other.class}"
+        
+      elsif other.ole_respond_to?( :sheets )
+      
+        # Workbook
+        
+        # Only one sheet, or the entire Workbook?
+        if sheetname
+          add( sheetname ).load( other.sheets( sheetname ).usedrange.send( operation ) )
+        else
+          self.name = File.basename( other.name, '.*' )
+          other.sheets.each { |sh| add( sh.name ).load( sh.usedrange.send( operation ) ) }
+        end
+        
+      elsif other.ole_respond_to?( :usedrange )
+      
+        # Sheet
+        add( other.name ).load( other.usedrange.send( operation ) )
+        
+      else
+      
+        fail ArgumentError, "Object not recognised as a WIN32OLE Workbook or Sheet.\n#{other.inspect}"
+        
+      end
+      
+      self
+    end
+    
+    #
     # Take an Excel Sheet and standardise some of the formatting
     #
     # @param [WIN32OLE::Worksheet] sheet the Sheet to add formatting to

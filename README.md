@@ -236,6 +236,20 @@ wb.delete( 'Sheet1' )
 wb.delete( sheet1 )
 wb.delete( /sheet1/i )
 
+#Import a WIN32OLE Workbook or Sheet, either by passing the Object or a Filename
+#Parameters: WIN32OLE Object or Filename, SheetName or nil for all Sheets, true to keep Excel Formulas or omit to import Values.
+wb = RubyExcel.import( '/path/to/file.xlsx' )
+wb = RubyExcel.import( '/path/to/file.xlsx', 'Sheet2' )
+wb = RubyExcel.import( '/path/to/file.xlsx', 'Sheet2', true )
+#Or:
+require 'win32ole'
+excel = WIN32OLE.new( 'excel.application' )
+excel.visible = true #Optional
+my_workbook = excel.workbooks.open( '/path/to/file.xlsx' )
+wb.import( my_workbook )
+#Or:
+wb.import( my_workbook.sheets(1) )
+
 #Shortcut to create a sheet with a default name and fill it with data
 wb.load( data )
 
