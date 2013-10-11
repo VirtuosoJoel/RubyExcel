@@ -116,7 +116,13 @@ module RubyExcel
         #Open the file with Excel
         excel = WIN32OLE.new( 'excel.application' )
         excel.displayalerts = false
-        wb = excel.workbooks.open({'filename'=> other, 'readOnly' => true})
+        
+        begin
+          wb = excel.workbooks.open({'filename'=> other, 'readOnly' => true})
+        rescue WIN32OLERuntimeError
+          excel.quit
+          raise
+        end
         
         # Only one sheet, or the entire Workbook?
         if sheetname
