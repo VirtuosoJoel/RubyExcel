@@ -27,6 +27,19 @@ end
 module RubyExcel
 
   #
+  # Don't require Windows-specific libraries unless the relevant methods are called
+  #
+
+  def self.method_missing( m, *args, &block )
+    if m == :documents_path
+      require_relative 'rubyexcel/excel_tools.rb'
+      send( m, *args, &block )
+    else
+      super
+    end
+  end
+
+  #
   # A Workbook which can hold multiple Sheets
   #
 

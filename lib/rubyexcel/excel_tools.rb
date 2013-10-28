@@ -27,6 +27,16 @@ module RubyExcel
     range
   end
 
+  #
+  # Find the Windows "Documents" or "My Documents" path, or return the present working directory if it can't be found.
+  #
+  # @return [String]
+  #
+
+  def self.documents_path
+    Win32::Registry::HKEY_CURRENT_USER.open( 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders' )['Personal'] rescue Dir.pwd.gsub('/','\\')
+  end
+  
   class Workbook
   
   
@@ -50,7 +60,7 @@ module RubyExcel
     #
   
     def documents_path
-      Win32::Registry::HKEY_CURRENT_USER.open( 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders' )['Personal'] rescue Dir.pwd.gsub('/','\\')
+      RubyExcel.documents_path
     end
   
     #
