@@ -304,6 +304,7 @@ s += s
 s -= data
 s -= s
 
+#Sheet#advanced_filter! is Deprecated. Sheet#filter! now accepts multiple arguments.
 #Filter on multiple criteria
 #You can add as many arguments as you like. The order is: Header, Method(Symbol), Argument
 #Note: Returns a copy of the sheet when used without "!".
@@ -354,6 +355,7 @@ s.delete_columns_if { |c| c.empty? }
 #Note: Returns a copy of the sheet when used without "!".
 #Note: This gem carries a Regexp to_proc method for Regex shorthand (shown below).
 s.filter!( 'Part' ) { |value| value =~ /Type[13]/ }
+s.filter!( 'Part', 'Cost' ) { |part, cost| part =~ /Type[13]/ && cost < 2 }
 s.filter!( 'Part', &/Type[13]/ )
 
 #Filter the data to a specific set of columns by their headers.
