@@ -16,7 +16,7 @@ class Regexp
   #
 
   def to_proc
-    proc { |s| self =~ s.to_s }
+    proc { |string| self =~ string.to_s }
   end
 end
 
@@ -30,10 +30,10 @@ module RubyExcel
   # Don't require Windows-specific libraries unless the relevant methods are called
   #
 
-  def self.method_missing( m, *args, &block )
-    if m == :documents_path
+  def self.method_missing( method, *args, &block )
+    if method == :documents_path
       require_relative 'rubyexcel/excel_tools.rb'
-      send( m, *args, &block )
+      send( method, *args, &block )
     else
       super
     end
@@ -88,9 +88,9 @@ module RubyExcel
     # @param [nil, RubyExcel::Sheet, String] ref the identifier or Sheet to add
     # @return [RubyExcel::Sheet] the Sheet which was added
     
-    def add( ref=nil )
+    def add( ref = false )
       case ref
-      when nil    ; s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
+      when false    ; s = Sheet.new( 'Sheet' + ( @sheets.count + 1 ).to_s, self )
       when Sheet  ; ( s = ref ).workbook = self
       when String ; s = Sheet.new( ref, self )
       else        ; fail TypeError, "Unsupported Type: #{ ref.class }"
@@ -171,10 +171,10 @@ module RubyExcel
     # Don't require Windows-specific libraries unless the relevant methods are called
     #
 
-    def method_missing(m, *args, &block)
-      if ExcelToolsMethods.include?( m )
+    def method_missing(method, *args, &block)
+      if ExcelToolsMethods.include?( method )
         require_relative 'rubyexcel/excel_tools.rb'
-        send( m, *args, &block )
+        send( method, *args, &block )
       else
         super
       end
@@ -184,8 +184,8 @@ module RubyExcel
     # Allow for certain method_missing calls
     #
     
-    def respond_to?( m )
-      if ExcelToolsMethods.include?( m )
+    def respond_to?( method, include_private = false )
+      if ExcelToolsMethods.include?( method )
         true
       else
         super

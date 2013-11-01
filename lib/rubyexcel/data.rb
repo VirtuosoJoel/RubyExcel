@@ -236,17 +236,17 @@ require_relative 'address.rb'
     end
 
     #
-    # Removes all Rows (omitting headers) where the block is false
+    # Removes all Rows (omitting headers) where the block is falsey
     #
-    # @param [String] header the header of the Column to pass to the block
-    # @yield [Object] the value at the intersection of Column and Row
+    # @param [String, Array] headers splat of the headers for the Columns to filter by
+    # @yield [Array] the values at the intersections of Column and Row
     # @return [self]
     #
 
-    def filter!( header )
+    def filter!( *headers )
       hrows = sheet.header_rows
-      idx = index_by_header( header )
-      @data = @data.select.with_index { |row, i| hrows > i || yield( row[ idx -1 ] ) }
+      idx_array = headers.flatten.map { |header| index_by_header( header ) }.compact
+      @data = @data.select.with_index { |row, i| hrows > i || yield( idx_array.map { |idx| row[ idx -1 ] } ) }
       calc_dimensions
     end
   

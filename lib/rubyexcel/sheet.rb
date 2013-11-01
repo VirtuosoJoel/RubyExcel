@@ -115,6 +115,7 @@ module RubyExcel
       self
     end
     
+    # @deprecated Please use {#filter!} instead
     # @overload advanced_filter!( header, comparison_operator, search_criteria, ... )
     #   Filter on multiple criteria
     # @param [String] header a header to search under
@@ -129,6 +130,7 @@ module RubyExcel
     #
     
     def advanced_filter!( *args )
+      warn "[DEPRECATION] `advanced_filter!` is deprecated.  Please use `filter!` instead."
       data.advanced_filter!( *args ); self
     end
     
@@ -279,16 +281,16 @@ module RubyExcel
     end
     
     #
-    # Removes all Rows (omitting headers) where the block is false
+    # Removes all Rows (omitting headers) where the block is falsey
     #
-    # @param [String] header the header of the Column to pass to the block
-    # @yield [Object] the value at the intersection of Column and Row
+    # @param [String, Array] headers splat of the headers for the Columns to filter by
+    # @yield [Array] the values at the intersections of Column and Row
     # @return [self]
     #
     
-    def filter!( header, &block )
-      return to_enum( :filter!, header ) unless block_given?
-      data.filter!( header, &block ); self
+    def filter!( *headers, &block )
+      return to_enum( :filter!, headers ) unless block_given?
+      data.filter!( headers, &block ); self
     end
     
     #
@@ -427,7 +429,7 @@ module RubyExcel
     # Allow for certain method_missing calls
     #
     
-    def respond_to?( m )
+    def respond_to?( m, include_private = false )
     
       if m[-1] != '!' && respond_to?( m.to_s + '!' )
         true
