@@ -246,7 +246,7 @@ require_relative 'address.rb'
     def filter!( *headers )
       hrows = sheet.header_rows
       idx_array = headers.flatten.map { |header| index_by_header( header ) }.compact
-      @data = @data.select.with_index { |row, i| hrows > i || yield( idx_array.map { |idx| row[ idx -1 ] } ) }
+      @data = @data.select.with_index { |row, i| hrows > i || yield( idx_array.length == 1 ? row[ idx_array[0] - 1 ] : idx_array.map { |idx| row[ idx -1 ] } ) }
       calc_dimensions
     end
   

@@ -290,7 +290,7 @@ module RubyExcel
     
     def filter!( *headers, &block )
       return to_enum( :filter!, headers ) unless block_given?
-      data.filter!( headers, &block ); self
+      data.filter!( *headers, &block ); self
     end
     
     #
@@ -390,6 +390,7 @@ module RubyExcel
     def maxrow
       data.rows
     end
+    alias length maxrow
     
     #
     # The highest currently used column number
@@ -399,6 +400,7 @@ module RubyExcel
       data.cols
     end
     alias maxcolumn maxcol
+    alias width maxcol
     
     #
     # Allow shorthand range references and non-bang versions of bang methods.
