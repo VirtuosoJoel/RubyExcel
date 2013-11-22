@@ -542,6 +542,9 @@ module RubyExcel
       sort_method = lambda { |array| idx_array.map { |idx| array[idx] } }
       data.sort_by!( &sort_method )
       self
+    rescue ArgumentError => err
+      raise( NoMethodError, 'Item not comparable in "' + headers.flatten.map(&:to_s).join(', ') + '"' ) if err.message == 'comparison of Array with Array failed'
+      raise err
     end
     
     #
