@@ -641,6 +641,27 @@ module RubyExcel
       data.map { |ar| ar.map { |v| v.to_s.gsub(/\t|\n|\r/,' ') }.join "\t" }.join( $/ )
     end
     
+    # {Sheet#to_safe_format!}
+    
+    def to_safe_format
+      dup.to_safe_format!
+    end
+    
+    #
+    # Standardise the data for safe export to Excel.
+    #   Set each cell contents to a string and remove leading equals signs.
+    #
+    
+    def to_safe_format!
+      rows { |r| r.map! { |v|
+        if v.is_a?( String )
+          v[0] == '=' ? v.sub( /\A=/,"'=" ) : v
+        else
+          v.to_s
+        end
+      } }; self
+    end
+    
     #
     # the Sheet as a TSV String
     #

@@ -247,13 +247,8 @@ module RubyExcel
     #
     
     def to_safe_format!
-      sheets { |s| s.rows { |r| r.map! { |v|
-        if v.is_a?( String )
-          v[0] == '=' ? v.sub( /\A=/,"'=" ) : v
-        else
-          v.to_s
-        end
-      } } }; self
+      sheets &:to_safe_format!
+      self
     end
     
   end # Workbook
