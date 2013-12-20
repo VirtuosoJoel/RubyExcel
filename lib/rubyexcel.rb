@@ -118,7 +118,7 @@ module RubyExcel
     
     def delete( ref=nil, &block )
     
-      fail ArgumentError, 'Requires either an argument OR a block' if ref && block_given
+      fail ArgumentError, 'Requires either an argument OR a block' if ref && block_given?
       
       case ref
       when nil    ; @sheets.reject! { |sht| yield sht }
