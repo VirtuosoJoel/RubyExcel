@@ -235,6 +235,7 @@ wb.delete( 1 )
 wb.delete( 'Sheet1' )
 wb.delete( sheet1 )
 wb.delete( /sheet1/i )
+wb.delete { |sht| sht.name == 'Sheet1' }
 
 #Import a WIN32OLE Workbook or Sheet, either by passing the Object or a Filename
 #Parameters: WIN32OLE Object or Filename, SheetName or nil for all Sheets, true to keep Excel Formulas or omit to import Values.

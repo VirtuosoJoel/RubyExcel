@@ -112,11 +112,16 @@ module RubyExcel
     #
     # Removes Sheet(s) from the Workbook
     #
-    # @param [Fixnum, String, Regexp, RubyExcel::Sheet] ref the reference or object to remove
+    # @param [Fixnum, String, Regexp, RubyExcel::Sheet, NilClass] ref the reference or object to remove, or nil if passing a block
+    # @yield [RubyExcel::Sheet] yields each sheet, if there is no argument and a block is given
     #
     
-    def delete( ref )
+    def delete( ref=nil, &block )
+    
+      fail ArgumentError, 'Requires either an argument OR a block' if ref && block_given
+      
       case ref
+      when nil    ; @sheets.reject! { |sht| yield sht }
       when Fixnum ; @sheets.delete_at( ref - 1 )
       when String ; @sheets.reject! { |s| s.name == ref }
       when Regexp ; @sheets.reject! { |s| s.name =~ ref }
