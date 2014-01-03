@@ -123,10 +123,11 @@ module RubyExcel
         # Filename
         File.exists?( other ) || fail( ArgumentError, "Unable to find file: #{ other }" )
         
-        #Open the file with Excel
+        #Open Excel
         excel = WIN32OLE.new( 'excel.application' )
         excel.displayalerts = false
         
+        # Open the file
         begin
           wb = excel.workbooks.open({'filename'=> other, 'readOnly' => true})
         rescue WIN32OLERuntimeError
@@ -136,10 +137,14 @@ module RubyExcel
         
         # Only one sheet, or the entire Workbook?
         if sheetname
+        
           add( sheetname ).load( wb.sheets( sheetname ).usedrange.send( operation ) )
+          
         else
+        
           self.name = File.basename( other, '.*' )
-          wb.sheets.each { |sh| add( sh.name ).load( sh.usedrange.send( operation ) ) }
+          wb.sheets.each { |sh| add( sh.name ).tap{ |s| s.load( sh.usedrange.send( operation ) ) unless sh.application.worksheetfunction.counta(sh.cells).zero? } }
+          
         end
         
         # Cleanup
@@ -156,16 +161,16 @@ module RubyExcel
         
         # Only one sheet, or the entire Workbook?
         if sheetname
-          add( sheetname ).load( other.sheets( sheetname ).usedrange.send( operation ) )
+          add( sheetname ).tap{ |s| s.load( sh.usedrange.send( operation ) ) unless sh.application.worksheetfunction.counta(sh.cells).zero? }
         else
           self.name = File.basename( other.name, '.*' )
-          other.sheets.each { |sh| add( sh.name ).load( sh.usedrange.send( operation ) ) }
+          other.sheets.each { |sh| add( sh.name ).tap{ |s| s.load( sh.usedrange.send( operation ) ) unless sh.application.worksheetfunction.counta(sh.cells).zero? } }
         end
         
       elsif other.ole_respond_to?( :usedrange )
       
         # Sheet
-        add( other.name ).load( other.usedrange.send( operation ) )
+        add( other.name ).tap{ |s| s.load( sh.usedrange.send( operation ) ) unless sh.application.worksheetfunction.counta(sh.cells).zero? }
         
       else
       
