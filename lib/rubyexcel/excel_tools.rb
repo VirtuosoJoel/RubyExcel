@@ -129,7 +129,7 @@ module RubyExcel
         
         # Open the file
         begin
-          wb = excel.workbooks.open({'filename'=> other, 'readOnly' => true})
+          wb = excel.workbooks.open({'filename'=> other, 'readOnly' => true, 'UpdateLinks' => false})
         rescue WIN32OLERuntimeError
           excel.quit
           raise
