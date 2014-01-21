@@ -74,6 +74,7 @@ module RubyExcel
     def dump_to_sheet( data, sheet=nil )
       data.is_a?( Array ) or fail ArgumentError, "Invalid data type: #{ data.class }"
       sheet ||= get_workbook.sheets(1)
+      sheet.cells.clear
       sheet.range( sheet.cells( 1, 1 ), sheet.cells( data.length, data.max_by(&:length).length ) ).value = data
       sheet
     end
