@@ -3,6 +3,9 @@ RubyExcel
 
 Designed for Ruby on Windows with MS Excel
 
+Note: This project is on indefinite hold as of 05/02/2014, as Joel Pearson is no longer actively involved.
+If anyone wishes to continue development, please feel free to fork the project.
+
 Introduction
 ------------
 
