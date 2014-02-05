@@ -281,6 +281,17 @@ module RubyExcel
     end
     
     #
+    # Export data to a specific WIN32OLE Excel Sheet
+    #
+    # @param win32ole_sheet the Sheet to export to
+    # @return WIN32OLE Sheet
+    #
+    
+    def export( win32ole_sheet )
+      parent.dump_to_sheet( to_a, win32ole_sheet )
+    end
+    
+    #
     # Removes all Rows (omitting headers) where the block is falsey
     #
     # @param [String, Array] headers splat of the headers for the Columns to filter by
