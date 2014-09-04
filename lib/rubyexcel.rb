@@ -52,13 +52,17 @@ module RubyExcel
     # Get and set the Workbook name
     attr_accessor :name
     
+    # Set to true to cause the workbook to always create a new instance of Excel when exporting
+    attr_accessor :standalone
+    
     #
     # Creates a RubyExcel::Workbook instance.
     #
     
     def initialize( name = 'Output' )
-      @name = name
+      self.name = name
       @sheets = []
+      self.standalone = false
     end
     
     #
