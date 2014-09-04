@@ -80,6 +80,31 @@ module RubyExcel
     end
     
     #
+    # Save the RubyExcel::Workbook as an Excel Workbook and close Excel afterwards
+    #
+    # @param [String] filename the filename to save as
+    # @return [String] the full filename
+    #
+    
+    def export( filename = nil )
+      prev_standalone = standalone
+      self.standalone = true
+      filename ||= name
+      filename = filename.gsub('/','\\')
+      unless filename.include?('\\')
+        filename = documents_path + '\\' + filename 
+      end
+      wb = to_excel( true )
+      wb.saveas filename
+      filename = wb.fullname
+      excel = wb.application
+      wb.close
+      excel.quit
+      self.standalone = prev_standalone
+      filename
+    end
+    
+    #
     # Open or connect to an Excel instance
     #
     # @param [Boolean] invisible leave Excel invisible if creating a new instance
@@ -87,6 +112,7 @@ module RubyExcel
     #
 
     def get_excel( invisible = false )
+      return WIN32OLE::new( 'excel.application' ) if standalone
       excel = WIN32OLE::connect( 'excel.application' ) rescue WIN32OLE::new( 'excel.application' )
       excel.visible = true unless invisible
       excel
@@ -214,7 +240,7 @@ module RubyExcel
       unless filename.include?('\\')
         filename = documents_path + '\\' + filename 
       end
-      wb = to_excel( invisible )
+      wb = to_excel( ( standalone ? true : invisible ) )
       wb.saveas filename
       wb
     end
