@@ -15,11 +15,6 @@ You can find the gem [here](https://rubygems.org/gems/rubyexcel "Rubygems").
 
 Main documentation is [here](http://rubydoc.info/gems/rubyexcel "Rubydoc")
 
-For any requests, comments, etc. I keep an eye on [this forum](http://www.ruby-forum.com/forum/ruby "Ruby Mailing List").
-If you put "RubyExcel" in the subject title I should see it.
-
-Please feel free to log any enhancement requests or bugs [here](https://github.com/VirtuosoJoel/RubyExcel/issues "Bug Tracker").
-
 Details
 -----
 
